@@ -23,6 +23,8 @@ O repositório contém uma primeira interface estática responsiva com dados sin
 
 ## Etapa 2 — Backend seguro
 
+**Pré-condição:** aprovar a proposta em `docs/DATA-MODEL.md`, confirmar o provedor de autenticação e criar um ambiente de desenvolvimento isolado. Ainda não existem migrations aplicadas nem conexão com banco de dados.
+
 - Implementar autenticação, recuperação de conta e controle de acesso por função.
 - Definir funções iniciais: administrador, professor, aluno e auditor.
 - Implementar API validada no servidor para questões, avaliações, turmas, tentativas e resultados.

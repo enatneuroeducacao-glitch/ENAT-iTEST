@@ -1,12 +1,31 @@
 (() => {
   "use strict";
   const byId = (id) => document.getElementById(id);
+  const demoStorageKey = "enat-itest-demo-assessments-v1";
   const records = [
     { id: 1, name: "Fundamentos de segurança viária", kind: "Conhecimentos gerais", questions: 10, status: "ready", statusLabel: "Preparada", updated: "Hoje" },
     { id: 2, name: "Atenção e percepção de risco", kind: "Neurotrânsito", questions: 15, status: "draft", statusLabel: "Rascunho", updated: "Ontem" },
     { id: 3, name: "Comportamento no trânsito", kind: "Educação para o trânsito", questions: 20, status: "review", statusLabel: "Em revisão", updated: "22 out. 2026" }
   ];
-  let nextId = 4;
+  // Persist only records explicitly created in this browser demo; never store student or sensitive data.
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(demoStorageKey) || "[]");
+    if (Array.isArray(saved)) {
+      saved.filter((item) => item && typeof item.name === "string" && Number.isInteger(item.id)).forEach((item) => records.push(item));
+    }
+  } catch (_) {
+    // Storage may be disabled or contain invalid data; the demo remains usable in memory.
+  }
+  let nextId = Math.max(3, ...records.map((record) => Number(record.id) || 0)) + 1;
+  function saveDemoRecords() {
+    try {
+      window.localStorage.setItem(demoStorageKey, JSON.stringify(records.filter((record) => record.id > 3)));
+      return true;
+    } catch (_) {
+      notify("Registro criado apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
+      return false;
+    }
+  }
   let activeView = "overview";
   let toastTimer;
   const views = {
@@ -116,11 +135,12 @@
       return;
     }
     records.unshift({id:nextId++,name,kind:category,questions,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+    saveDemoRecords();
     byId("create-form").reset();
     byId("exam-questions").value = "10";
     byId("create-dialog").close();
     navigate("exams");
-    notify("Avaliação demonstrativa criada nesta sessão do navegador.");
+    notify("Avaliação demonstrativa criada. Neste protótipo, ela fica salva apenas neste navegador; não use dados pessoais ou reais.");
   });
   navigate("overview");
 })();

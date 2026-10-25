@@ -18,7 +18,7 @@ assert.match(js, /addEventListener\("submit"/, "Assessment form should handle su
 assert.match(js, /replace\(\/\[&<>"/, "Dynamic content should be escaped before insertion");
 assert.match(css, /@media\(max-width:720px\)/, "Mobile layout should be defined");
 assert.match(css, /:focus-visible/, "Keyboard focus styles should exist");
-assert.match(readme, /Dados de demonstração são sintéticos/, "Readme should clarify demo data");
-assert.match(readme, /não é ainda uma aplicação pronta para produção/, "Readme should describe current limitations");
+assert.match(readme, /[Dd]ados de demonstração são sintéticos/, "Readme should clarify demo data");
+assert.match(readme, /[Nn]ão é ainda uma aplicação pronta para produção/, "Readme should describe current limitations");
 
 console.log("ENAT iTEST smoke checks passed.");

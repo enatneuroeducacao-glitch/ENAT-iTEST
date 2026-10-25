@@ -37,6 +37,16 @@ Esta versão inicial é estática, sem backend:
 - `docs/LEGACY-IMPORT.md` — estratégia de importação segura.
 - `tests/smoke-test.js` — testes estáticos básicos sem dependências externas.
 
+## Publicação da demonstração
+
+O workflow de validação roda a cada alteração em `main`. A publicação por GitHub Pages está preparada em `.github/workflows/pages.yml`, mas o site precisa ser habilitado uma única vez nas configurações do repositório porque a integração de automação não tem permissão para criar o site Pages:
+
+1. Abra **Settings → Pages** neste repositório.
+2. Selecione a publicação por **GitHub Actions**, se solicitado.
+3. Depois de habilitado, abra **Actions → Deploy ENAT iTEST to GitHub Pages → Run workflow**.
+
+A publicação só hospeda a interface estática demonstrativa. Não ativa backend, login real, banco de dados ou migração.
+
 ## Limitações conhecidas
 
 A demonstração mantém o estado no navegador e usa dados de exemplo; não é multiusuário e não oferece autenticação, banco de dados, sincronização ou segurança de prova em servidor. Esses recursos precisam de backend e testes próprios antes de qualquer uso real.

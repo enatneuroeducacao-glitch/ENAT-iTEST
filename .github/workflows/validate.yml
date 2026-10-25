@@ -1,0 +1,31 @@
+name: Validate ENAT iTEST
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate required files
+        run: |
+          test -f index.html
+          test -f assets/styles.css
+          test -f assets/app.js
+          test -f docs/ROADMAP.md
+          test -f docs/LEGACY-IMPORT.md
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/app.js
+          node --check tests/smoke-test.js
+      - name: Run smoke tests
+        run: node tests/smoke-test.js

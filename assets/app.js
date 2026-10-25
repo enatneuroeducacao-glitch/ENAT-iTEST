@@ -2,6 +2,17 @@
   "use strict";
   const byId = (id) => document.getElementById(id);
   const demoStorageKey = "enat-itest-demo-assessments-v1";
+  const questionStorageKey = "enat-itest-demo-questions-v1";
+  const demoQuestions = [
+    { id: 1, prompt: "Qual atitude contribui para reduzir o risco de sinistros no trânsito?", kind: "Educação para o trânsito", options: ["Respeitar os limites de velocidade", "Usar o celular ao dirigir", "Manter distância insuficiente", "Ignorar a sinalização"], answer: 0, updated: "Exemplo" },
+    { id: 2, prompt: "O que significa perceber riscos antes de agir no trânsito?", kind: "Neurotrânsito", options: ["Antecipar perigos e ajustar a conduta", "Confiar apenas na sorte", "Aumentar a velocidade sempre", "Desconsiderar outros usuários"], answer: 0, updated: "Exemplo" },
+    { id: 3, prompt: "Ao se aproximar de uma faixa de pedestres, o condutor deve:", kind: "Conhecimentos gerais", options: ["Acelerar para passar primeiro", "Observar e dar preferência conforme as regras", "Buzinar continuamente", "Desviar sem reduzir a atenção"], answer: 1, updated: "Exemplo" }
+  ];
+  try {
+    const savedQuestions = JSON.parse(window.localStorage.getItem(questionStorageKey) || "[]");
+    if (Array.isArray(savedQuestions)) savedQuestions.filter((q) => q && typeof q.prompt === "string" && Number.isInteger(q.id)).forEach((q) => demoQuestions.push(q));
+  } catch (_) {}
+  let nextQuestionId = Math.max(3, ...demoQuestions.map((q) => Number(q.id) || 0)) + 1;
   const records = [
     { id: 1, name: "Fundamentos de segurança viária", kind: "Conhecimentos gerais", questions: 10, status: "ready", statusLabel: "Preparada", updated: "Hoje" },
     { id: 2, name: "Atenção e percepção de risco", kind: "Neurotrânsito", questions: 15, status: "draft", statusLabel: "Rascunho", updated: "Ontem" },
@@ -17,6 +28,15 @@
     // Storage may be disabled or contain invalid data; the demo remains usable in memory.
   }
   let nextId = Math.max(3, ...records.map((record) => Number(record.id) || 0)) + 1;
+  function saveDemoQuestions() {
+    try {
+      window.localStorage.setItem(questionStorageKey, JSON.stringify(demoQuestions.filter((q) => q.id > 3)));
+      return true;
+    } catch (_) {
+      notify("Questão disponível apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
+      return false;
+    }
+  }
   function saveDemoRecords() {
     try {
       window.localStorage.setItem(demoStorageKey, JSON.stringify(records.filter((record) => record.id > 3)));
@@ -74,7 +94,7 @@
       body.appendChild(tr);
     });
     byId("empty-state").classList.toggle("hidden", list.length > 0);
-    byId("metric-exams").textContent = String(12 + records.length - 3);
+    byId("metric-exams").textContent = String(12 + records.length - 3);\n    byId("metric-questions").textContent = String(125 + demoQuestions.length);\n    byId("question-nav-count").textContent = String(demoQuestions.length);
     byId("exam-nav-count").textContent = String(records.length);
     body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de registro serão habilitadas após a implementação do backend.")));
   }
@@ -107,7 +127,7 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  byId("new-exam").addEventListener("click", () => openDialog("exam"));
+  byId("new-exam").addEventListener("click", () => openDialog("exam"));\n  byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());\n  byId("cancel-question-dialog").addEventListener("click", () => byId("question-dialog").close());\n  byId("question-form").addEventListener("submit", (event) => {\n    event.preventDefault();\n    const prompt = byId("question-prompt").value.trim();\n    const options = ["option-a", "option-b", "option-c", "option-d"].map((id) => byId(id).value.trim());\n    if (!prompt || options.some((option) => !option)) { notify("Preencha o enunciado e as quatro alternativas."); return; }\n    demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });\n    saveDemoQuestions();\n    byId("question-form").reset();\n    byId("question-dialog").close();\n    navigate("questions");\n    notify("Questão demonstrativa salva neste navegador. O gabarito não é publicado em uma API; ainda não há servidor.");\n  });
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
     const action = button.dataset.action;
     if (action === "exam" || action === "question") openDialog(action);

@@ -34,6 +34,7 @@ Esta versão inicial é estática, sem backend:
 - `assets/styles.css` — estilos responsivos.
 - `assets/app.js` — navegação e interações locais com dados demonstrativos.
 - `docs/ROADMAP.md` — arquitetura-alvo e etapas.
+- `docs/DATA-MODEL.md` — proposta de entidades, regras de integridade e contrato inicial da API; ainda não aplicada a banco algum.
 - `docs/LEGACY-IMPORT.md` — estratégia de importação segura.
 - `tests/smoke-test.js` — testes estáticos básicos sem dependências externas.
 
@@ -53,4 +54,4 @@ A demonstração mantém o estado no navegador e usa dados de exemplo; não é m
 
 ## Direção técnica
 
-Começar com uma interface simples e auditável; depois escolher e documentar stack de backend, banco de dados, autenticação, autorização por perfil, logs e estratégia de backup antes de integrar dados reais.
+A proposta inicial de dados e API está documentada em `docs/DATA-MODEL.md`. A stack de backend, banco de dados, autenticação e hospedagem ainda precisa ser aprovada antes de criar migrations, conectar serviços ou integrar dados reais.

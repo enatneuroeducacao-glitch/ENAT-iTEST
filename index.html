@@ -17,7 +17,7 @@
     <div class="workspace-label">ESPAÇO DE TRABALHO</div>
     <nav class="nav">
       <button class="nav-item active" data-view="overview"><span>▦</span>Visão geral</button>
-      <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em>128</em></button>
+      <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em id="question-nav-count">3</em></button>
       <button class="nav-item" data-view="exams"><span>▣</span>Avaliações <em id="exam-nav-count">12</em></button>
       <button class="nav-item" data-view="classes"><span>♧</span>Turmas e alunos</button>
       <button class="nav-item" data-view="results"><span>⌁</span>Resultados</button>
@@ -73,6 +73,20 @@
     <label for="exam-category">Categoria</label><select id="exam-category" name="exam-category"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
     <label for="exam-questions">Quantidade de questões</label><input id="exam-questions" name="exam-questions" type="number" min="1" max="100" value="10" required>
     <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-dialog">Cancelar</button><button class="primary-button" type="submit">Criar demonstração</button></div>
+  </form>
+</dialog>
+<dialog class="dialog" id="question-dialog" aria-labelledby="question-dialog-title">
+  <form id="question-form">
+    <div class="dialog-head"><h2 id="question-dialog-title">Adicionar questão</h2><button class="icon-button" type="button" id="close-question-dialog" aria-label="Fechar">×</button></div>
+    <p class="dialog-description">Questão de demonstração armazenada somente neste navegador. Não use dados pessoais ou conteúdo sigiloso.</p>
+    <label for="question-prompt">Enunciado</label><textarea id="question-prompt" name="question-prompt" required maxlength="1200" rows="3" placeholder="Digite o enunciado da questão"></textarea>
+    <label for="question-category">Categoria</label><select id="question-category" name="question-category"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
+    <label for="option-a">Alternativa A</label><input id="option-a" required maxlength="300" placeholder="Texto da alternativa A">
+    <label for="option-b">Alternativa B</label><input id="option-b" required maxlength="300" placeholder="Texto da alternativa B">
+    <label for="option-c">Alternativa C</label><input id="option-c" required maxlength="300" placeholder="Texto da alternativa C">
+    <label for="option-d">Alternativa D</label><input id="option-d" required maxlength="300" placeholder="Texto da alternativa D">
+    <label for="question-answer">Gabarito</label><select id="question-answer" required><option value="0">Alternativa A</option><option value="1">Alternativa B</option><option value="2">Alternativa C</option><option value="3">Alternativa D</option></select>
+    <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-question-dialog">Cancelar</button><button class="primary-button" type="submit">Salvar questão demonstrativa</button></div>
   </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

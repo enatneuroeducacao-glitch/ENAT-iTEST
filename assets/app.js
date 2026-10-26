@@ -156,11 +156,11 @@
   }
   function normalizeCategory(value) {
     return String(value || "")
-      .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase("pt-BR")
       .replace(/[^a-z0-9]+/g, " ")
       .trim()
-      .replace(/\\s+/g, " ");
+      .replace(/\s+/g, " ");
   }
   function categoryGroup(value) {
     const category = normalizeCategory(value);
@@ -214,6 +214,25 @@
       availableSignatures.add(signature);
     }
     return { error: "Não foi possível montar uma combinação inédita com as questões disponíveis. Adicione mais questões ou altere as matérias/quantidade." };
+  }
+  // Recupera avaliações antigas que guardavam apenas a quantidade, sem vínculos reais às questões.
+  // Como a composição original não foi persistida, a recuperação sorteia e salva uma nova composição.
+  function repairLegacyAssessments() {
+    let changed = false;
+    for (const record of records) {
+      const linkedQuestions = assessmentQuestions(record);
+      const expectedCount = Number(record.questions) || (Array.isArray(record.questionIds) ? record.questionIds.length : 0);
+      if (expectedCount < 1 || linkedQuestions.length >= expectedCount) continue;
+      const subjects = Array.isArray(record.subjects) && record.subjects.length ? record.subjects : [record.kind].filter(Boolean);
+      if (!subjects.length) continue;
+      const draw = drawUniqueQuestions(subjects, expectedCount, record.id);
+      if (draw.error) continue;
+      record.questionIds = draw.ids;
+      record.questions = draw.ids.length;
+      record.updated = "Recuperada automaticamente";
+      changed = true;
+    }
+    if (changed) saveDemoRecords();
   }
   function answerText(q){if(q.type==="true_false")return q.answer===0?"Verdadeiro":"Falso";if(q.type==="multiple_choice"||!q.type)return String.fromCharCode(65+(Number(q.answer)||0));if(q.type==="matching")return(q.pairs||[]).map(p=>p.left+" → "+p.right).join("; ");return q.expectedAnswer||(q.type==="essay"?"Correção manual":"Resposta não informada");}
   function exportAssessmentCSV(id){const r=records.find(x=>x.id===id);if(!r)return notify("Avaliação não encontrada.");const rows=[["avaliacao","categoria","numero","tipo","enunciado","opcoes_ou_pares","gabarito"]];assessmentQuestions(r).forEach((q,i)=>rows.push([r.name,r.kind,i+1,q.type||"multiple_choice",q.prompt,q.type==="matching"?(q.pairs||[]).map(p=>p.left+" = "+p.right).join(" | "):(q.options||[]).join(" | "),answerText(q)]));const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="enat-itest-avaliacao-"+id+".csv";a.click();URL.revokeObjectURL(url);notify("Exportação CSV iniciada.");}
@@ -463,5 +482,6 @@
     byId("create-dialog").close();
     navigate("exams");
   });
+  repairLegacyAssessments();
   navigate("overview");
 })();

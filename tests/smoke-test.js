@@ -16,6 +16,8 @@ assert.match(html, /id="question-form"/, "Question creation form should exist");
 assert.match(html, /id="question-answer"/, "Question answer-key selector should exist");
 assert.match(js, /function navigate\(/, "View navigation should be implemented");
 assert.match(js, /function renderRecords\(/, "Demo records should render");
+assert.match(js, /activeView === "classes" \? "♧ Gerenciar turma"/, "Primary action should reflect the selected section");
+assert.match(js, /O cadastro de turmas e alunos ainda não está implementado/, "Class action should not open the assessment form");
 assert.match(js, /addEventListener\("submit"/, "Assessment form should handle submit");
 assert.match(js, /questionStorageKey/, "Demo questions should use a separate local storage key");
 assert.match(js, /saveDemoQuestions\(/, "Question form should persist demo questions locally");

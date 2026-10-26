@@ -49,7 +49,7 @@ function exportCSV() {
     const lines = [columns.join(",")];
     questions.forEach((q) => lines.push([
       q.prompt, q.kind, q.type || "multiple_choice", (q.options || []).join("|"),
-      Number.isInteger(q.answer) ? q.answer : "",
+      Number.isInteger(q.answer) ? q.answer + 1 : "",
       (q.pairs || []).map((p) => String(p.left || "") + "=>" + String(p.right || "")).join("|"),
       q.expectedAnswer || "", q.updated || ""
     ].map(csvCell).join(",")));
@@ -74,7 +74,7 @@ function makeQuestion(record, rowNumber) {
   if (!allowed.includes(type)) throw new Error("linha " + rowNumber + ": tipo de resposta desconhecido.");
   if (type === "multiple_choice" || type === "true_false") {
     if (options.length < 2 || options.some((v) => !v)) throw new Error("linha " + rowNumber + ": informe pelo menos duas alternativas separadas por |.");
-    if (!Number.isInteger(answer) || answer < 0 || answer >= options.length) throw new Error("linha " + rowNumber + ": gabarito deve ser o índice da alternativa (0 para a primeira ou 1 para a primeira, conforme padrão do arquivo; será normalizado).");
+    if (!Number.isInteger(answer) || answer < 0 || answer >= options.length) throw new Error("linha " + rowNumber + ": gabarito inválido: use 1 para a primeira alternativa, 2 para a segunda, etc.");
     if (type === "true_false" && options.length !== 2) throw new Error("linha " + rowNumber + ": verdadeiro/falso exige exatamente duas alternativas.");
   }
   if (type === "matching" && (pairs.length < 2 || pairs.some((p) => !p.left || !p.right))) throw new Error("linha " + rowNumber + ": associação exige pares no formato esquerda=>direita separados por |.");

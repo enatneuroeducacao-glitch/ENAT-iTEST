@@ -89,7 +89,8 @@
       }
       list.forEach((record) => {
         const tr = document.createElement("tr");
-        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(record.questions) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td><button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button></td>';
+        const questionCount = Array.isArray(record.questionIds) && record.questionIds.length ? record.questionIds.length : record.questions;
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(questionCount) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td><button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button></td>';
         body.appendChild(tr);
       });
       body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de avaliação serão habilitadas na próxima etapa.")));
@@ -136,6 +137,27 @@
     byId("mobile-menu").setAttribute("aria-expanded", "false");
     renderRecords();
   }
+  function renderQuestionSelection(selectedIds = []) {
+    const container = byId("exam-question-selection");
+    container.replaceChildren();
+    if (!demoQuestions.length) {
+      container.textContent = "Cadastre questões antes de vinculá-las.";
+      return;
+    }
+    demoQuestions.forEach((question) => {
+      const label = document.createElement("label");
+      label.className = "question-choice";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.name = "exam-question-id";
+      input.value = String(question.id);
+      input.checked = selectedIds.includes(question.id);
+      const text = document.createElement("span");
+      text.textContent = question.prompt;
+      label.append(input, text);
+      container.appendChild(label);
+    });
+  }
   function openDialog(mode) {
     if (mode === "question") {
       byId("question-form").reset();
@@ -149,6 +171,7 @@
     byId("dialog-title").textContent = "Criar avaliação";
     byId("dialog-description").textContent = "Crie um registro de demonstração. Ele não será enviado para um servidor.";
     byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
+    renderQuestionSelection();
     if (typeof dialog.showModal === "function") dialog.showModal();
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
@@ -201,7 +224,12 @@
       notify("Informe um nome e uma quantidade de questões entre 1 e 100.");
       return;
     }
-    records.unshift({id:nextId++,name,kind:category,questions,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+    const questionIds = Array.from(document.querySelectorAll('input[name="exam-question-id"]:checked')).map((input) => Number(input.value));
+    if (questionIds.length > questions) {
+      notify("A quantidade de questões vinculadas não pode superar a quantidade definida para a avaliação.");
+      return;
+    }
+    records.unshift({id:nextId++,name,kind:category,questions:questionIds.length || questions,questionIds,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
     saveDemoRecords();
     byId("create-form").reset();
     byId("exam-questions").value = "10";

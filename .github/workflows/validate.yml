@@ -30,6 +30,7 @@ jobs:
           node --check assets/app.js
           node --check assets/question-backup.js
           node --check assets/question-csv.js
+          node --check assets/scan-correction.js
           node --check tests/smoke-test.js
       - name: Run smoke tests
         run: node tests/smoke-test.js

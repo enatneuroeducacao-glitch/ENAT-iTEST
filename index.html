@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#102c46">
   <meta name="description" content="ENAT iTEST — plataforma de avaliações educacionais, banco de questões e acompanhamento de aprendizagem.">
   <title>ENAT iTEST | Avaliações educacionais</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20261026-2">
+  <link rel="stylesheet" href="assets/styles.css?v=20261026-3">
 </head>
 <body>
 <div class="app-shell">
@@ -89,15 +89,19 @@
     <p class="dialog-description">Cadastre ou edite o enunciado, as alternativas e o gabarito. Nesta versão, as alterações ficam somente neste navegador.</p>
     <label for="question-prompt">Enunciado</label><textarea id="question-prompt" name="question-prompt" required maxlength="1200" rows="3" placeholder="Digite o enunciado da questão"></textarea>
     <label for="question-category">Categoria</label><select id="question-category" name="question-category"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
-    <label for="option-a">Alternativa A</label><input id="option-a" required maxlength="300" placeholder="Texto da alternativa A">
-    <label for="option-b">Alternativa B</label><input id="option-b" required maxlength="300" placeholder="Texto da alternativa B">
-    <label for="option-c">Alternativa C</label><input id="option-c" required maxlength="300" placeholder="Texto da alternativa C">
-    <label for="option-d">Alternativa D</label><input id="option-d" required maxlength="300" placeholder="Texto da alternativa D">
-    <label for="question-answer">Gabarito</label><select id="question-answer" required><option value="0">Alternativa A</option><option value="1">Alternativa B</option><option value="2">Alternativa C</option><option value="3">Alternativa D</option></select>
+    <label for="question-type">Tipo de resposta</label>
+    <select id="question-type" name="question-type">
+      <option value="multiple_choice">Múltipla escolha</option>
+      <option value="true_false">Verdadeiro ou falso</option>
+      <option value="matching">Relação / associação</option>
+      <option value="short_text">Resposta curta</option>
+      <option value="essay">Resposta discursiva</option>
+    </select>
+    <div id="question-type-fields"></div>
     <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-question-dialog">Cancelar</button><button class="primary-button" type="submit">Salvar questão</button></div>
   </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/app.js?v=20261026-2" defer></script>
+<script src="assets/app.js?v=20261026-3" defer></script>
 </body>
 </html>

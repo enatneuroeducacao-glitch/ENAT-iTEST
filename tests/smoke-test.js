@@ -16,7 +16,7 @@ assert.match(html, /id="question-form"/, "Question creation form should exist");
 assert.match(html, /id="question-dialog"/, "Question editor must use its own dialog");
 assert.match(html, /id="create-dialog"/, "Assessment creation must use a separate dialog");
 assert.match(html, /assets\/app\.js\?v=20261026-4/, "Published app script should use a cache-busting version");
-assert.match(html, /assets\/styles\.css\?v=20261026-2/, "Published stylesheet should use a cache-busting version");
+assert.match(html, /assets\/styles\.css\?v=20261026-4/, "Published stylesheet should use a cache-busting version");
 assert.match(html, /Salvar questão/, "Question form should have a question-specific save action");
 assert.match(html, /id="question-type"/, "Question response type selector should exist");
 assert.match(html, /id="question-type-fields"/, "Dynamic question fields should exist");

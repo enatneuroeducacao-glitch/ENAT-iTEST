@@ -58,3 +58,106 @@
 .csv-confirm{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5}
 .csv-import-dialog .primary-button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:560px){.csv-import-form{padding:18px}.csv-summary-grid{grid-template-columns:1fr 1fr}.csv-summary-grid>div:last-child{grid-column:1/-1}.csv-category-list{grid-template-columns:1fr}}
+
+
+/* Corrige o layout dos controles nativos dentro da janela de importação CSV */
+.csv-import-dialog {
+  width: min(760px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: min(88vh, 900px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.csv-import-form {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: clamp(16px, 3vw, 26px);
+  overflow-wrap: anywhere;
+}
+.csv-import-form * {
+  min-width: 0;
+}
+.csv-import-form .dialog-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.csv-import-form .dialog-head > div {
+  flex: 1;
+}
+.csv-import-form .dialog-head h2 {
+  margin: 0;
+  font-size: clamp(18px, 2vw, 23px);
+  line-height: 1.25;
+}
+.csv-import-form .dialog-head .icon-button {
+  flex: 0 0 32px;
+}
+.csv-import-dialog .csv-import-options label,
+.csv-import-dialog .csv-confirm {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 12px 6px;
+  line-height: 1.45;
+}
+.csv-import-dialog .csv-import-options label > input[type="radio"],
+.csv-import-dialog .csv-confirm > input[type="checkbox"] {
+  display: block;
+  width: 16px !important;
+  min-width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 3px 0 0;
+  padding: 0;
+}
+.csv-import-dialog .csv-import-options label > span {
+  display: block;
+  flex: 1;
+}
+.csv-import-dialog .csv-import-options small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.csv-import-dialog .csv-import-options b {
+  font-size: 14px;
+}
+.csv-import-dialog .csv-confirm > span {
+  display: block;
+  flex: 1;
+}
+.csv-import-dialog .dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  position: sticky;
+  bottom: -1px;
+  padding-top: 12px;
+  background: #fff;
+}
+.csv-import-dialog .dialog-actions button {
+  width: auto;
+}
+@media (max-width: 560px) {
+  .csv-import-dialog {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: 92vh;
+  }
+  .csv-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .csv-summary-grid > div:last-child {
+    grid-column: 1 / -1;
+  }
+  .csv-category-list {
+    grid-template-columns: 1fr;
+  }
+  .csv-import-dialog .dialog-actions button {
+    flex: 1 1 auto;
+  }
+}

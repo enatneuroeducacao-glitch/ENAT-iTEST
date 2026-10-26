@@ -47,6 +47,8 @@
     }
   }
   let activeView = "overview";
+  let questionSearch = "";
+  let questionCategory = "";
   let toastTimer;
   const views = {
     overview: { title: "Visão geral", headline: "Bom dia. Vamos aprender melhor.", subtitle: "Acompanhe suas avaliações e organize o próximo passo do aprendizado.", section: "Avaliações recentes", description: "Organize, revise e prepare atividades de aprendizagem." },
@@ -70,10 +72,15 @@
     const body = byId("records-body");
     body.replaceChildren();
     if (activeView === "questions") {
-      demoQuestions.forEach((question) => {
+      const filteredQuestions = demoQuestions.filter((question) => {
+        const query = questionSearch.trim().toLocaleLowerCase("pt-BR");
+        const matchesQuery = !query || question.prompt.toLocaleLowerCase("pt-BR").includes(query) || question.kind.toLocaleLowerCase("pt-BR").includes(query);
+        return matchesQuery && (!questionCategory || question.kind === questionCategory);
+      });
+      filteredQuestions.forEach((question) => {
         const tr = document.createElement("tr");
         const answer = question.options[question.answer] || "";
-        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + '</small></span></div></td><td>4 alternativas</td><td><span class="status ready">Gabarito ' + safeText(String.fromCharCode(65 + question.answer)) + '</span></td><td>' + safeText(question.updated || "Exemplo") + '</td><td><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button> <button class="row-menu" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + '</small></span></div></td><td><span class="option-summary">' + question.options.length + ' alternativas</span></td><td><span class="status ready">Gabarito ' + safeText(String.fromCharCode(65 + question.answer)) + '</span><small class="answer-preview">' + safeText(answer) + '</small></td><td>' + safeText(question.updated || "Exemplo") + '</td><td class="question-row-actions"><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button><button class="row-menu danger-action" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
         body.appendChild(tr);
       });
       body.querySelectorAll("[data-question-edit]").forEach((button) => button.addEventListener("click", () => editQuestion(Number(button.dataset.questionEdit))));
@@ -96,6 +103,16 @@
       body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de avaliação serão habilitadas na próxima etapa.")));
     }
     byId("empty-state").classList.toggle("hidden", body.children.length > 0);
+    if (activeView === "questions" && body.children.length === 0) {
+      byId("empty-state").querySelector("strong").textContent = "Nenhuma questão encontrada";
+      byId("empty-state").querySelector("span").textContent = "Ajuste a pesquisa ou o filtro, ou cadastre uma nova questão.";
+    } else {
+      byId("empty-state").querySelector("strong").textContent = "Nenhum registro nesta visualização";
+      byId("empty-state").querySelector("span").textContent = "Crie uma avaliação demonstrativa para começar.";
+    }
+    byId("question-tools").classList.toggle("hidden", activeView !== "questions");
+    byId("view-all").classList.toggle("hidden", activeView === "questions");
+    byId("new-exam").textContent = activeView === "questions" ? "＋ Nova questão" : "＋ Criar avaliação";
     byId("metric-exams").textContent = String(12 + records.length - 3);
     byId("metric-questions").textContent = String(125 + demoQuestions.length);
     byId("question-nav-count").textContent = String(demoQuestions.length);
@@ -176,7 +193,10 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  byId("new-exam").addEventListener("click", () => openDialog("exam"));
+  byId("new-exam").addEventListener("click", () => openDialog(activeView === "questions" ? "question" : "exam"));
+  byId("add-question").addEventListener("click", () => openDialog("question"));
+  byId("question-search").addEventListener("input", (event) => { questionSearch = event.target.value; renderRecords(); });
+  byId("question-filter").addEventListener("change", (event) => { questionCategory = event.target.value; renderRecords(); });
   byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());
   byId("cancel-question-dialog").addEventListener("click", () => byId("question-dialog").close());
   byId("question-form").addEventListener("submit", (event) => {

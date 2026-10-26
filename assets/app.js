@@ -288,7 +288,8 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  if (byId("review-duplicates")) byId("review-duplicates").addEventListener("click", reviewDuplicateQuestions);\n  byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
+  if (byId("review-duplicates")) byId("review-duplicates").addEventListener("click", reviewDuplicateQuestions);
+  byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
   byId("question-type").addEventListener("change", () => renderQuestionTypeFields());
   byId("exam-category").addEventListener("change", () => renderQuestionSelection([], byId("exam-category").value));

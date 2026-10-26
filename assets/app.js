@@ -95,7 +95,8 @@
     });
     byId("empty-state").classList.toggle("hidden", list.length > 0);
     byId("metric-exams").textContent = String(12 + records.length - 3);
-    byId("metric-questions").textContent = String(125 + demoQuestions.length);\n    byId("question-nav-count").textContent = String(demoQuestions.length);
+    byId("metric-questions").textContent = String(125 + demoQuestions.length);
+    byId("question-nav-count").textContent = String(demoQuestions.length);
     byId("exam-nav-count").textContent = String(records.length);
     body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de registro serão habilitadas após a implementação do backend.")));
   }

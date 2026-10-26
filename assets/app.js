@@ -165,6 +165,48 @@
     byId("question-dialog-title").textContent = "Editar questão";
     if (typeof byId("question-dialog").showModal === "function") byId("question-dialog").showModal();
   }
+  function reviewDuplicateQuestions() {
+    const groups = new Map();
+    demoQuestions.forEach((q) => {
+      const signature = [q.prompt, q.kind || q.category || "", q.type || "multiple_choice", (q.options || []).join("|")]
+        .map(v => String(v).trim().toLocaleLowerCase("pt-BR")).join("::");
+      if (!groups.has(signature)) groups.set(signature, []);
+      groups.get(signature).push(q);
+    });
+    const duplicates = [...groups.values()].filter(group => group.length > 1);
+    if (!duplicates.length) {
+      notify("Nenhuma duplicidade exata encontrada no banco local. Questões parecidas não foram consideradas duplicadas.");
+      return;
+    }
+    const lines = duplicates.map(group => "IDs " + group.map(q => q.id).join(", ") + ": " + group[0].prompt);
+    downloadDuplicateReport(duplicates);
+    const action = window.confirm(
+      "Foram encontradas " + duplicates.length + " combinações de possíveis duplicatas (" +
+      duplicates.reduce((sum, group) => sum + group.length - 1, 0) + " registros excedentes).\\n\\n" +
+      lines.slice(0, 12).join("\\n") + (lines.length > 12 ? "\\n… e mais grupos. Consulte o CSV de revisão baixado." : "") +
+      "\\n\\nO relatório foi baixado. Deseja abrir a lista de questões para editar ou excluir individualmente?"
+    );
+    if (action) {
+      questionSearch = "";
+      questionCategory = "";
+      byId("question-search").value = "";
+      byId("question-filter").value = "";
+      navigate("questions");
+      notify("Use os botões Editar e Excluir nas linhas identificadas no relatório CSV. Nenhuma questão foi alterada.");
+    }
+  }
+  function downloadDuplicateReport(groups) {
+    const rows = [["grupo","id","enunciado","categoria","tipo","alternativas","gabarito","ação_recomendada"]];
+    groups.forEach((group, index) => group.forEach((q, position) => rows.push([
+      index + 1, q.id, q.prompt, q.kind || q.category || "", q.type || "multiple_choice",
+      (q.options || []).join(" | "), Number.isInteger(q.answer) ? q.answer + 1 : "",
+      position === 0 ? "Revisar e manter como referência" : "Verificar: editar, excluir ou manter"
+    ])));
+    const csv = "\uFEFF" + rows.map(row => row.map(v => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(";")).join("\\r\\n");
+    const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+    const a = document.createElement("a"); a.href = url; a.download = "ENAT-iTEST-relatorio-duplicidades.csv";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
   function deleteQuestion(id) {
     const question = demoQuestions.find((item) => item.id === id);
     if (!question) return;
@@ -246,7 +288,7 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
+  if (byId("review-duplicates")) byId("review-duplicates").addEventListener("click", reviewDuplicateQuestions);\n  byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
   byId("question-type").addEventListener("change", () => renderQuestionTypeFields());
   byId("exam-category").addEventListener("change", () => renderQuestionSelection([], byId("exam-category").value));

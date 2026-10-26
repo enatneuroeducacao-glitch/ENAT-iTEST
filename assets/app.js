@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const byId = (id) => document.getElementById(id);
-  const demoStorageKey = "enat-itest-demo-assessments-v1";
+  const demoStorageKey = "enat-itest-assessments-v2";
   const questionStorageKey = "enat-itest-demo-questions-v1";
   // Catálogo inicia vazio: não exibir questões fictícias como conteúdo real.
   const demoQuestions = [];

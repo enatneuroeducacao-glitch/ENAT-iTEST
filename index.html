@@ -124,7 +124,7 @@
 </dialog>
 <dialog class="dialog correction-dialog" id="correction-dialog" aria-labelledby="correction-title">
   <div class="dialog-head"><h2 id="correction-title">Corrigir provas</h2><button class="icon-button" id="close-correction" type="button" aria-label="Fechar">×</button></div>
-  <p class="dialog-description">Envie uma imagem da folha de respostas. Esta etapa identifica o QR Code e prepara a conferência; ainda não calcula notas nem grava resultados.</p>
+  <p class="dialog-description">Envie uma foto frontal do cartão-resposta OMR (até 30 questões). O sistema lê o QR Code, reconhece as marcações e compara com o gabarito desta avaliação. Resultados ficam somente neste navegador.</p>
   <div class="scan-controls"><label class="secondary-button" for="scan-file">Selecionar imagem</label><input id="scan-file" type="file" accept="image/png,image/jpeg,image/webp,image/bmp"><button class="secondary-button" id="scan-camera" type="button">Usar câmera do dispositivo</button><button class="secondary-button" id="scan-reset" type="button">Limpar</button></div>
   <div id="camera-panel" class="camera-panel" hidden><video id="scan-video" autoplay playsinline muted></video><div class="camera-actions"><button class="primary-button" id="scan-capture" type="button">Capturar imagem</button><button class="secondary-button" id="scan-camera-stop" type="button">Desligar câmera</button></div></div><div id="scan-status" class="scan-status" role="status" aria-live="polite">Envie uma imagem para iniciar a identificação da folha.</div>
   <div id="scan-preview" class="scan-preview"></div><div id="scan-result" class="scan-result"></div>

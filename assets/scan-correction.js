@@ -4,6 +4,7 @@
   const KEY = "enat-itest-demo-questions-v1";
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   let selectedImage = null;
+  let cameraStream = null;
   function say(message) {
     const el = $("scan-status");
     if (el) el.textContent = message;
@@ -60,8 +61,46 @@
     const file=$("scan-file");
     if(file)file.addEventListener("change",()=>analyzeFile(file.files&&file.files[0]));
     const camera=$("scan-camera");
-    if(camera)camera.addEventListener("click",()=>{if(file){file.setAttribute("capture","environment");file.click();}});
+    const cameraPanel=$("camera-panel");
+    const video=$("scan-video");
+    const capture=$("scan-capture");
+    const stopCamera=$("scan-camera-stop");
+    async function startCamera(){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        say("Este navegador não disponibiliza acesso direto à câmera. Use HTTPS em um navegador atualizado ou selecione uma imagem.");
+        return;
+      }
+      try{
+        stopCameraStream();
+        cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+        video.srcObject=cameraStream;
+        cameraPanel.hidden=false;
+        await video.play();
+        say("Câmera ativa. Posicione a folha inteira no enquadramento e toque em Capturar imagem.");
+      }catch(error){
+        const reason=error&&error.name==="NotAllowedError"?"Acesso à câmera negado. Autorize a câmera nas permissões do navegador e tente novamente.":error&&error.name==="NotFoundError"?"Nenhuma câmera foi encontrada neste dispositivo.":"Não foi possível abrir a câmera. Verifique se outro aplicativo está usando-a e confira as permissões do navegador.";
+        say(reason);
+      }
+    }
+    function stopCameraStream(){
+      if(cameraStream){cameraStream.getTracks().forEach(track=>track.stop());cameraStream=null;}
+      if(video)video.srcObject=null;
+      if(cameraPanel)cameraPanel.hidden=true;
+    }
+    if(camera)camera.addEventListener("click",startCamera);
+    if(stopCamera)stopCamera.addEventListener("click",()=>{stopCameraStream();say("Câmera desligada.");});
+    if(capture)capture.addEventListener("click",async()=>{
+      if(!video||!video.videoWidth){say("A câmera ainda está iniciando. Aguarde um instante.");return;}
+      const canvas=document.createElement("canvas");
+      canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+      canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.92));
+      stopCameraStream();
+      if(blob)await analyzeFile(new File([blob],"captura-camera.jpg",{type:"image/jpeg"}));
+      else say("Não foi possível capturar a imagem. Tente novamente.");
+    });
     const reset=$("scan-reset");
-    if(reset)reset.addEventListener("click",()=>{$("scan-file").value="";$("scan-preview").replaceChildren();$("scan-result").replaceChildren();selectedImage=null;say("Envie uma imagem para iniciar a identificação da folha.");});
+    if(reset)reset.addEventListener("click",()=>{stopCameraStream();$("scan-file").value="";$("scan-preview").replaceChildren();$("scan-result").replaceChildren();selectedImage=null;say("Envie uma imagem para iniciar a identificação da folha.");});
+    if(dialog)dialog.addEventListener("close",stopCameraStream);
   });
 })();

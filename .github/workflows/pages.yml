@@ -26,6 +26,7 @@ jobs:
           test -f assets/styles.css
           test -f assets/app.js
           node --check assets/app.js
+          node --check assets/scan-correction.js
           node --check tests/smoke-test.js
           node tests/smoke-test.js
       - name: Configure Pages

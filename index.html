@@ -72,6 +72,9 @@
     <label for="exam-name">Nome da avaliação</label><input id="exam-name" name="exam-name" required maxlength="100" placeholder="Ex.: Fundamentos de segurança viária">
     <label for="exam-category">Categoria</label><select id="exam-category" name="exam-category"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
     <label for="exam-questions">Quantidade de questões</label><input id="exam-questions" name="exam-questions" type="number" min="1" max="100" value="10" required>
+    <label for="exam-question-selection">Questões vinculadas (opcional)</label>
+    <p class="dialog-description">Selecione questões próprias ou de exemplo para vincular a esta avaliação demonstrativa.</p>
+    <div id="exam-question-selection" class="question-selection" aria-label="Selecionar questões"></div>
     <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-dialog">Cancelar</button><button class="primary-button" type="submit">Criar demonstração</button></div>
   </form>
 </dialog>

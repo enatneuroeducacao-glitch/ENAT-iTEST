@@ -127,7 +127,7 @@ async function importCSV(file) {
       existing.forEach((q) => backupLines.push([q.id,q.prompt,q.kind || q.category || "",q.type || "multiple_choice",(q.options || []).join("|"),Number.isInteger(q.answer) ? q.answer + 1 : "",(q.pairs || []).map(p => String(p.left || "") + "=>" + String(p.right || "")).join("|"),q.expectedAnswer || "",q.updated || ""].map(csvCell).join(",")));
       downloadCSV("enat-itest-backup-antes-substituicao-" + new Date().toISOString().slice(0,10) + ".csv", backupLines);
     }
-    const maxExistingId = Math.max(0, ...existing.map(q => Number(q.id) || 0));
+    const maxExistingId = choice === "1" ? 0 : Math.max(0, ...existing.map(q => Number(q.id) || 0));
     const stamp = new Date().toLocaleDateString("pt-BR");
     const imported = target.map((q, i) => {
       const requestedId = choice === "1" ? Number(rows[i + 1] && rows[i + 1][header.indexOf("id")]) : NaN;

@@ -63,7 +63,7 @@ function exportCSV() {
 function makeQuestion(record, rowNumber) {
   const type = record.type || "multiple_choice";
   const options = record.options ? record.options.split("|").map((v) => v.trim()) : [];
-  let answer = record.answer === "" ? NaN : Number(record.answer);
+  let answer = record.answer === "" ? NaN : (/^[A-D]$/i.test(record.answer.trim()) ? record.answer.trim().toUpperCase().charCodeAt(0) - 64 : Number(record.answer.trim()));
   if (Number.isInteger(answer) && answer >= 1 && answer <= options.length) answer -= 1;
   const pairs = record.pairs ? record.pairs.split("|").map((item) => {
     const i = item.indexOf("=>");
@@ -95,7 +95,7 @@ async function importCSV(file) {
       const record = {}; header.forEach((name, i) => { record[name] = row[i] || ""; });
       return makeQuestion(record, index + 2);
     });
-    if (incoming.length > 1000) throw new Error("limite de 1.000 questões por arquivo.");
+    if (incoming.length > 2000) throw new Error("limite de 2.000 questões por arquivo.");
     const existing = readQuestions();
     const nextId = Math.max(3, ...existing.map((q) => Number(q.id) || 0)) + 1;
     const stamp = new Date().toLocaleDateString("pt-BR");

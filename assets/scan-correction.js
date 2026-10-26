@@ -53,7 +53,10 @@
     const dialog=$("correction-dialog");
     if(open&&dialog) open.addEventListener("click",()=>{if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");});
     const close=$("close-correction");
-    if(close&&dialog)close.addEventListener("click",()=>dialog.close?dialog.close():dialog.removeAttribute("open"));
+    const closeBottom=$("close-correction-bottom");
+    const closeDialog=()=>dialog&&(dialog.close?dialog.close():dialog.removeAttribute("open"));
+    if(close)close.addEventListener("click",closeDialog);
+    if(closeBottom)closeBottom.addEventListener("click",closeDialog);
     const file=$("scan-file");
     if(file)file.addEventListener("change",()=>analyzeFile(file.files&&file.files[0]));
     const camera=$("scan-camera");

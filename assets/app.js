@@ -69,36 +69,57 @@
   function renderRecords() {
     const body = byId("records-body");
     body.replaceChildren();
-    let list = records;
     if (activeView === "questions") {
-      list = records.map((r) => ({...r, name: "Questões — " + r.kind, kind: "Categoria de demonstração"}));
-    } else if (activeView === "classes") {
-      list = [
-        {id:101,name:"Turma piloto — Segurança viária",kind:"Grupo demonstrativo",questions:24,status:"ready",statusLabel:"Organizada",updated:"Esta semana"},
-        {id:102,name:"Turma piloto — Neurotrânsito",kind:"Grupo demonstrativo",questions:18,status:"review",statusLabel:"Em organização",updated:"Esta semana"}
-      ];
-    } else if (activeView === "results") {
-      list = [
-        {id:201,name:"Conclusão média demonstrativa",kind:"Indicador ilustrativo",questions:"84%",status:"ready",statusLabel:"Exemplo",updated:"Esta semana"},
-        {id:202,name:"Participação nas avaliações",kind:"Indicador ilustrativo",questions:"76%",status:"review",statusLabel:"Exemplo",updated:"Esta semana"}
-      ];
-    } else if (activeView === "reports") {
-      list = [
-        {id:301,name:"Resumo de avaliações",kind:"Relatório ilustrativo",questions:"12",status:"ready",statusLabel:"Demonstração",updated:"Este mês"},
-        {id:302,name:"Visão de participação",kind:"Relatório ilustrativo",questions:"246",status:"review",statusLabel:"Demonstração",updated:"Este mês"}
-      ];
+      demoQuestions.forEach((question) => {
+        const tr = document.createElement("tr");
+        const answer = question.options[question.answer] || "";
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + '</small></span></div></td><td>4 alternativas</td><td><span class="status ready">Gabarito ' + safeText(String.fromCharCode(65 + question.answer)) + '</span></td><td>' + safeText(question.updated || "Exemplo") + '</td><td><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button> <button class="row-menu" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
+        body.appendChild(tr);
+      });
+      body.querySelectorAll("[data-question-edit]").forEach((button) => button.addEventListener("click", () => editQuestion(Number(button.dataset.questionEdit))));
+      body.querySelectorAll("[data-question-delete]").forEach((button) => button.addEventListener("click", () => deleteQuestion(Number(button.dataset.questionDelete))));
+    } else {
+      let list = records;
+      if (activeView === "classes") {
+        list = [{id:101,name:"Turma piloto — Segurança viária",kind:"Grupo demonstrativo",questions:24,status:"ready",statusLabel:"Organizada",updated:"Esta semana"},{id:102,name:"Turma piloto — Neurotrânsito",kind:"Grupo demonstrativo",questions:18,status:"review",statusLabel:"Em organização",updated:"Esta semana"}];
+      } else if (activeView === "results") {
+        list = [{id:201,name:"Conclusão média demonstrativa",kind:"Indicador ilustrativo",questions:"84%",status:"ready",statusLabel:"Exemplo",updated:"Esta semana"},{id:202,name:"Participação nas avaliações",kind:"Indicador ilustrativo",questions:"76%",status:"review",statusLabel:"Exemplo",updated:"Esta semana"}];
+      } else if (activeView === "reports") {
+        list = [{id:301,name:"Resumo de avaliações",kind:"Relatório ilustrativo",questions:"12",status:"ready",statusLabel:"Demonstração",updated:"Este mês"},{id:302,name:"Visão de participação",kind:"Relatório ilustrativo",questions:"246",status:"review",statusLabel:"Demonstração",updated:"Este mês"}];
+      }
+      list.forEach((record) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(record.questions) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td><button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button></td>';
+        body.appendChild(tr);
+      });
+      body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de avaliação serão habilitadas na próxima etapa.")));
     }
-    list.forEach((record) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(record.questions) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td><button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button></td>';
-      body.appendChild(tr);
-    });
-    byId("empty-state").classList.toggle("hidden", list.length > 0);
+    byId("empty-state").classList.toggle("hidden", body.children.length > 0);
     byId("metric-exams").textContent = String(12 + records.length - 3);
     byId("metric-questions").textContent = String(125 + demoQuestions.length);
     byId("question-nav-count").textContent = String(demoQuestions.length);
     byId("exam-nav-count").textContent = String(records.length);
-    body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de registro serão habilitadas após a implementação do backend.")));
+  }
+  function editQuestion(id) {
+    const question = demoQuestions.find((item) => item.id === id);
+    if (!question) return;
+    byId("question-prompt").value = question.prompt;
+    byId("question-category").value = question.kind;
+    ["option-a", "option-b", "option-c", "option-d"].forEach((field, index) => { byId(field).value = question.options[index] || ""; });
+    byId("question-answer").value = String(question.answer);
+    byId("question-form").dataset.editingId = String(id);
+    byId("question-dialog-title").textContent = "Editar questão";
+    if (typeof byId("question-dialog").showModal === "function") byId("question-dialog").showModal();
+  }
+  function deleteQuestion(id) {
+    const question = demoQuestions.find((item) => item.id === id);
+    if (!question) return;
+    if (id <= 3) { notify("Questões de exemplo do catálogo base não podem ser excluídas."); return; }
+    if (!window.confirm("Excluir esta questão demonstrativa deste navegador?")) return;
+    demoQuestions.splice(demoQuestions.findIndex((item) => item.id === id), 1);
+    saveDemoQuestions();
+    renderRecords();
+    notify("Questão demonstrativa excluída deste navegador.");
   }
   function navigate(view) {
     if (!views[view]) return;
@@ -115,16 +136,18 @@
     renderRecords();
   }
   function openDialog(mode) {
-    const dialog = byId("create-dialog");
     if (mode === "question") {
-      byId("dialog-title").textContent = "Adicionar questão";
-      byId("dialog-description").textContent = "O cadastro completo de questões será desenvolvido em uma próxima etapa. Por enquanto, você pode criar uma avaliação demonstrativa.";
-      byId("exam-name").placeholder = "Nome da avaliação de referência";
-    } else {
-      byId("dialog-title").textContent = "Criar avaliação";
-      byId("dialog-description").textContent = "Crie um registro de demonstração. Ele não será enviado para um servidor.";
-      byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
+      byId("question-form").reset();
+      delete byId("question-form").dataset.editingId;
+      byId("question-dialog-title").textContent = "Adicionar questão";
+      if (typeof byId("question-dialog").showModal === "function") byId("question-dialog").showModal();
+      else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
+      return;
     }
+    const dialog = byId("create-dialog");
+    byId("dialog-title").textContent = "Criar avaliação";
+    byId("dialog-description").textContent = "Crie um registro de demonstração. Ele não será enviado para um servidor.";
+    byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
     if (typeof dialog.showModal === "function") dialog.showModal();
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
@@ -137,12 +160,19 @@
     const prompt = byId("question-prompt").value.trim();
     const options = ["option-a", "option-b", "option-c", "option-d"].map((id) => byId(id).value.trim());
     if (!prompt || options.some((option) => !option)) { notify("Preencha o enunciado e as quatro alternativas."); return; }
-    demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
+    const editingId = Number(byId("question-form").dataset.editingId);
+    if (editingId) {
+      const existing = demoQuestions.find((question) => question.id === editingId);
+      if (existing) Object.assign(existing, { prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
+      delete byId("question-form").dataset.editingId;
+    } else {
+      demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
+    }
     saveDemoQuestions();
     byId("question-form").reset();
     byId("question-dialog").close();
     navigate("questions");
-    notify("Questão demonstrativa salva neste navegador. O gabarito não é publicado em uma API; ainda não há servidor.");
+    notify(editingId ? "Questão demonstrativa atualizada neste navegador." : "Questão demonstrativa salva neste navegador. Ainda não há servidor.");
   });
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
     const action = button.dataset.action;

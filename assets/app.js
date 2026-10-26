@@ -27,7 +27,7 @@
       window.localStorage.setItem(questionStorageKey, JSON.stringify(demoQuestions));
       return true;
     } catch (_) {
-      notify("Questão disponível apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
+      notify("Não foi possível salvar a questão neste navegador.");
       return false;
     }
   }
@@ -36,7 +36,7 @@
       window.localStorage.setItem(demoStorageKey, JSON.stringify(records));
       return true;
     } catch (_) {
-      notify("Registro criado apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
+      notify("Não foi possível salvar a avaliação neste navegador.");
       return false;
     }
   }
@@ -46,11 +46,11 @@
   let toastTimer;
   const views = {
     overview: { title: "Visão geral", headline: "Bom dia. Vamos aprender melhor.", subtitle: "Acompanhe suas avaliações e organize o próximo passo do aprendizado.", section: "Avaliações recentes", description: "Organize, revise e prepare atividades de aprendizagem." },
-    questions: { title: "Banco de questões", headline: "Banco de questões", subtitle: "Organize questões, categorias e conteúdos para futuras avaliações.", section: "Questões de demonstração", description: "Catálogo ilustrativo — nenhum conteúdo real foi importado." },
-    exams: { title: "Avaliações", headline: "Avaliações", subtitle: "Crie e organize avaliações para diferentes objetivos de aprendizagem.", section: "Avaliações cadastradas", description: "Registros de exemplo criados nesta demonstração." },
-    classes: { title: "Turmas e alunos", headline: "Turmas e alunos", subtitle: "Prepare a organização de grupos para futuras avaliações.", section: "Visão de turmas", description: "Os registros abaixo são apenas demonstrativos." },
-    results: { title: "Resultados", headline: "Resultados de aprendizagem", subtitle: "Acompanhe indicadores ilustrativos sem expor dados pessoais.", section: "Atividade recente", description: "Os dados reais serão conectados após a implementação do backend." },
-    reports: { title: "Relatórios", headline: "Relatórios", subtitle: "Planeje análises de desempenho e acompanhamento educacional.", section: "Resumo demonstrativo", description: "Nenhum relatório real foi calculado nesta versão." }
+    questions: { title: "Banco de questões", headline: "Banco de questões", subtitle: "Organize questões, categorias e conteúdos para futuras avaliações.", section: "Banco de questões", description: "Cadastre questões ou importe um arquivo CSV validado." },
+    exams: { title: "Avaliações", headline: "Avaliações", subtitle: "Crie e organize avaliações para diferentes objetivos de aprendizagem.", section: "Avaliações cadastradas", description: "Avaliações criadas neste navegador." },
+    classes: { title: "Turmas e alunos", headline: "Turmas e alunos", subtitle: "Prepare a organização de grupos para futuras avaliações.", section: "Turmas e alunos", description: "A gestão de turmas e alunos ainda não está disponível." },
+    results: { title: "Resultados", headline: "Resultados de aprendizagem", subtitle: "Acompanhe indicadores ilustrativos sem expor dados pessoais.", section: "Resultados", description: "Os resultados serão exibidos quando houver tentativas reais registradas." },
+    reports: { title: "Relatórios", headline: "Relatórios", subtitle: "Planeje análises de desempenho e acompanhamento educacional.", section: "Relatórios", description: "Relatórios disponíveis após a implementação dos registros de avaliação." }
   };
   function notify(message) {
     const toast = byId("toast");
@@ -85,11 +85,11 @@
     } else {
       let list = records;
       if (activeView === "classes") {
-        list = [{id:101,name:"Turma piloto — Segurança viária",kind:"Grupo demonstrativo",questions:24,status:"ready",statusLabel:"Organizada",updated:"Esta semana"},{id:102,name:"Turma piloto — Neurotrânsito",kind:"Grupo demonstrativo",questions:18,status:"review",statusLabel:"Em organização",updated:"Esta semana"}];
+        list = [];
       } else if (activeView === "results") {
-        list = [{id:201,name:"Conclusão média demonstrativa",kind:"Indicador ilustrativo",questions:"84%",status:"ready",statusLabel:"Exemplo",updated:"Esta semana"},{id:202,name:"Participação nas avaliações",kind:"Indicador ilustrativo",questions:"76%",status:"review",statusLabel:"Exemplo",updated:"Esta semana"}];
+        list = [];
       } else if (activeView === "reports") {
-        list = [{id:301,name:"Resumo de avaliações",kind:"Relatório ilustrativo",questions:"12",status:"ready",statusLabel:"Demonstração",updated:"Este mês"},{id:302,name:"Visão de participação",kind:"Relatório ilustrativo",questions:"246",status:"review",statusLabel:"Demonstração",updated:"Este mês"}];
+        list = [];
       }
       list.forEach((record) => {
         const tr = document.createElement("tr");
@@ -98,7 +98,7 @@
         tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(questionCount) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td>' + (isEditableAssessment ? '<button class="row-menu" aria-label="Gerenciar questões de ' + safeText(record.name) + '" data-manage-assessment="' + record.id + '">Gerenciar questões</button>' : '<button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button>') + '</td>';
         body.appendChild(tr);
       });
-      body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Este registro é ilustrativo e não pode ser editado.")));
+      body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Não há ações disponíveis para este registro.")));
       body.querySelectorAll("[data-manage-assessment]").forEach((button) => button.addEventListener("click", () => manageAssessmentQuestions(Number(button.dataset.manageAssessment))));
     }
     byId("empty-state").classList.toggle("hidden", body.children.length > 0);
@@ -107,7 +107,7 @@
       byId("empty-state").querySelector("span").textContent = "Ajuste a pesquisa ou o filtro, ou cadastre uma nova questão.";
     } else {
       byId("empty-state").querySelector("strong").textContent = "Nenhum registro nesta visualização";
-      byId("empty-state").querySelector("span").textContent = "Crie uma avaliação demonstrativa para começar.";
+      byId("empty-state").querySelector("span").textContent = activeView === "classes" ? "O módulo de turmas e alunos ainda não foi implementado." : activeView === "results" ? "Nenhuma tentativa ou resultado real foi registrado." : activeView === "reports" ? "Não há dados suficientes para gerar relatórios." : "Crie uma avaliação para que ela apareça nesta lista.";
     }
     byId("question-tools").classList.toggle("hidden", activeView !== "questions");
     byId("view-all").classList.toggle("hidden", activeView === "questions");
@@ -163,7 +163,7 @@
     demoQuestions.splice(demoQuestions.findIndex((item) => item.id === id), 1);
     saveDemoQuestions();
     renderRecords();
-    notify("Questão demonstrativa excluída deste navegador.");
+    notify("Questão excluída deste navegador.");
   }
   function navigate(view) {
     if (!views[view]) return;
@@ -230,7 +230,7 @@
     byId("create-form").reset();
     byId("exam-questions").value = "10";
     byId("dialog-title").textContent = "Criar avaliação";
-    byId("dialog-description").textContent = "Crie um registro de demonstração. Ele não será enviado para um servidor.";
+    byId("dialog-description").textContent = "Crie uma avaliação. Ela será salva somente neste navegador até a conexão com o banco de dados ser implementada.";
     byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
     renderQuestionSelection();
     if (typeof dialog.showModal === "function") dialog.showModal();
@@ -262,13 +262,13 @@
     byId("question-form").reset();
     byId("question-dialog").close();
     navigate("questions");
-    notify(editingId ? "Questão demonstrativa atualizada neste navegador." : "Questão demonstrativa salva neste navegador. Ainda não há servidor.");
+    notify(editingId ? "Questão atualizada neste navegador." : "Questão salva neste navegador. A sincronização com servidor ainda não está disponível.");
   });
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
     const action = button.dataset.action;
     if (action === "exam" || action === "question") openDialog(action);
-    else if (action === "class") { navigate("classes"); notify("Turmas e alunos: área demonstrativa aberta. O cadastro próprio será implementado em etapa separada."); }
-    else if (action === "report") { navigate("results"); notify("Área de resultados demonstrativos aberta; nenhum dado real foi calculado."); }
+    else if (action === "class") { navigate("classes"); notify("O módulo de turmas e alunos ainda não está disponível."); }
+    else if (action === "report") { navigate("results"); notify("A área de resultados está vazia até existirem tentativas reais registradas."); }
   }));
   byId("view-all").addEventListener("click", () => navigate("exams"));
   byId("mobile-menu").addEventListener("click", () => {
@@ -310,7 +310,7 @@
       notify("Questões vinculadas à avaliação atualizadas neste navegador.");
     } else {
       records.unshift({id:nextId++,name,kind:category,questions:questionIds.length || questions,questionIds,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
-      notify("Avaliação demonstrativa criada. Neste protótipo, ela fica salva apenas neste navegador; não use dados pessoais ou reais.");
+      notify("Avaliação salva neste navegador. A sincronização com servidor ainda não está disponível.");
     }
     saveDemoRecords();
     byId("create-form").reset();

@@ -57,7 +57,26 @@
     toast.textContent = message;
     toast.classList.add("show");
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    toastTimer = window.setTimeout(() => toast.classList.remove("show"), 5000);
+
+    // Native dialogs render in the browser's top layer, above ordinary fixed toasts.
+    // Mirror notifications inside the open dialog so validation errors stay visible.
+    const openDialog = document.querySelector("dialog[open]");
+    if (openDialog) {
+      let feedback = openDialog.querySelector(".dialog-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "dialog-feedback";
+        feedback.setAttribute("role", "alert");
+        feedback.setAttribute("aria-live", "assertive");
+        const form = openDialog.querySelector("form");
+        if (form) form.insertBefore(feedback, form.firstChild);
+        else openDialog.insertBefore(feedback, openDialog.firstChild);
+      }
+      feedback.textContent = message;
+      feedback.classList.add("visible");
+      feedback.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   }
   function safeText(value) {
     return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));

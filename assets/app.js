@@ -103,6 +103,7 @@
   function editQuestion(id) {
     const question = demoQuestions.find((item) => item.id === id);
     if (!question) return;
+    if (id <= 3) { notify("Questões de exemplo do catálogo base são somente leitura. Crie uma questão própria para editar."); return; }
     byId("question-prompt").value = question.prompt;
     byId("question-category").value = question.kind;
     ["option-a", "option-b", "option-c", "option-d"].forEach((field, index) => { byId(field).value = question.options[index] || ""; });

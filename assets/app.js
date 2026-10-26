@@ -79,8 +79,11 @@
       });
       filteredQuestions.forEach((question) => {
         const tr = document.createElement("tr");
-        const answer = question.options[question.answer] || "";
-        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + '</small></span></div></td><td><span class="option-summary">' + question.options.length + ' alternativas</span></td><td><span class="status ready">Gabarito ' + safeText(String.fromCharCode(65 + question.answer)) + '</span><small class="answer-preview">' + safeText(answer) + '</small></td><td>' + safeText(question.updated || "Exemplo") + '</td><td class="question-row-actions"><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button><button class="row-menu danger-action" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
+        const answer = question.type === "matching" ? "Relação de pares" : question.type === "short_text" ? (question.expectedAnswer || "Resposta curta") : question.type === "essay" ? "Correção manual" : (question.options || [])[question.answer] || "";
+        const typeLabel = ({multiple_choice:"Múltipla escolha",true_false:"Verdadeiro/Falso",matching:"Relação",short_text:"Resposta curta",essay:"Discursiva"})[question.type || "multiple_choice"];
+        const countLabel = question.type === "true_false" ? "2 opções" : question.type === "matching" ? ((question.pairs||[]).length+" pares") : question.type === "short_text" || question.type === "essay" ? "Texto livre" : ((question.options||[]).length+" alternativas");
+        const answerLabel = question.type === "true_false" ? (question.answer===0?"Verdadeiro":"Falso") : question.type === "multiple_choice" || !question.type ? ("Gabarito "+String.fromCharCode(65+(question.answer||0))) : question.type === "matching" ? "Pares cadastrados" : question.type === "short_text" ? "Resposta esperada" : "Correção manual";
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + ' · ' + typeLabel + '</small></span></div></td><td><span class="option-summary">' + countLabel + '</span></td><td><span class="status ready">' + safeText(answerLabel) + '</span><small class="answer-preview">' + safeText(answer) + '</small></td><td>' + safeText(question.updated || "Exemplo") + '</td><td class="question-row-actions"><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button><button class="row-menu danger-action" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
         body.appendChild(tr);
       });
       body.querySelectorAll("[data-question-edit]").forEach((button) => button.addEventListener("click", () => editQuestion(Number(button.dataset.questionEdit))));
@@ -118,14 +121,42 @@
     byId("question-nav-count").textContent = String(demoQuestions.length);
     byId("exam-nav-count").textContent = String(records.length);
   }
+
+  function renderQuestionTypeFields(question) {
+    const host=byId("question-type-fields"), type=byId("question-type").value;
+    host.replaceChildren();
+    const label=(text)=>{const el=document.createElement("label");el.textContent=text;host.appendChild(el);};
+    if(type==="multiple_choice"||type==="true_false"){
+      const options=question&&Array.isArray(question.options)&&question.options.length?question.options:(type==="true_false"?["Verdadeiro","Falso"]:["","","",""]);
+      const list=document.createElement("div");list.id="dynamic-options";host.appendChild(list);
+      options.forEach((value,i)=>{const input=document.createElement("input");input.dataset.option="1";input.required=true;input.maxLength=300;input.placeholder="Alternativa "+String.fromCharCode(65+i);input.value=value;input.style.marginBottom="8px";list.appendChild(input);});
+      if(type==="multiple_choice"){const add=document.createElement("button");add.type="button";add.className="secondary-button";add.textContent="＋ Adicionar alternativa";add.addEventListener("click",()=>{const n=list.querySelectorAll("input").length;if(n>=10)return notify("Máximo de 10 alternativas.");const input=document.createElement("input");input.dataset.option="1";input.required=true;input.maxLength=300;input.placeholder="Alternativa "+String.fromCharCode(65+n);input.style.marginBottom="8px";list.appendChild(input);refreshQuestionAnswer();});host.appendChild(add);}
+      label("Gabarito");const answer=document.createElement("select");answer.id="dynamic-answer";answer.required=true;host.appendChild(answer);refreshQuestionAnswer(question?question.answer:0);
+    } else if(type==="matching"){
+      const rows=document.createElement("div");rows.id="matching-rows";host.appendChild(rows);
+      (question&&question.pairs&&question.pairs.length?question.pairs:[{left:"",right:""},{left:"",right:""}]).forEach(pair=>addMatchingPair(rows,pair));
+      const add=document.createElement("button");add.type="button";add.className="secondary-button";add.textContent="＋ Adicionar par";add.addEventListener("click",()=>{if(rows.children.length>=10)return notify("Máximo de 10 pares.");addMatchingPair(rows,{left:"",right:""});});host.appendChild(add);
+    } else {
+      label(type==="short_text"?"Resposta esperada":"Critérios para correção");
+      const input=document.createElement("textarea");input.id="question-expected-answer";input.rows=3;input.maxLength=1200;input.placeholder=type==="short_text"?"Informe a resposta correta":"Descreva os critérios de correção manual";input.value=question?(question.expectedAnswer||""):"";if(type==="short_text")input.required=true;host.appendChild(input);
+      if(type==="essay"){const note=document.createElement("p");note.className="dialog-description";note.textContent="Respostas discursivas precisam ser avaliadas por um responsável.";host.appendChild(note);}
+    }
+  }
+  function refreshQuestionAnswer(selected=0){const list=byId("dynamic-options"),answer=byId("dynamic-answer");if(!list||!answer)return;const options=Array.from(list.querySelectorAll("input"));answer.replaceChildren();options.forEach((input,i)=>{const opt=document.createElement("option");opt.value=String(i);opt.textContent="Alternativa "+String.fromCharCode(65+i);answer.appendChild(opt);});answer.value=String(Math.min(Number(selected)||0,options.length-1));}
+  function addMatchingPair(host,pair){const row=document.createElement("div");row.className="matching-pair";row.style.display="grid";row.style.gridTemplateColumns="1fr 1fr";row.style.gap="8px";row.style.marginBottom="8px";const left=document.createElement("input");left.dataset.matchLeft="1";left.required=true;left.placeholder="Item";left.value=pair.left||"";const right=document.createElement("input");right.dataset.matchRight="1";right.required=true;right.placeholder="Correspondência";right.value=pair.right||"";row.append(left,right);host.appendChild(row);}
+  function readQuestionTypeFields(type){
+    if(type==="multiple_choice"||type==="true_false"){const options=Array.from(byId("dynamic-options").querySelectorAll("input")).map(input=>input.value.trim());if(options.length<2||options.some(value=>!value))return{valid:false,error:"Preencha todas as alternativas."};return{valid:true,data:{options,answer:Number(byId("dynamic-answer").value)}};}
+    if(type==="matching"){const pairs=Array.from(byId("matching-rows").querySelectorAll(".matching-pair")).map(row=>({left:row.querySelector("[data-match-left]").value.trim(),right:row.querySelector("[data-match-right]").value.trim()}));if(pairs.length<2||pairs.some(pair=>!pair.left||!pair.right))return{valid:false,error:"Preencha pelo menos dois pares."};return{valid:true,data:{pairs,options:[],answer:null}};}
+    const expectedAnswer=byId("question-expected-answer").value.trim();if(type==="short_text"&&!expectedAnswer)return{valid:false,error:"Informe a resposta esperada."};return{valid:true,data:{expectedAnswer,options:[],answer:null}};
+  }
   function editQuestion(id) {
     const question = demoQuestions.find((item) => item.id === id);
     if (!question) return;
     if (id <= 3) { notify("Questões de exemplo do catálogo base são somente leitura. Crie uma questão própria para editar."); return; }
     byId("question-prompt").value = question.prompt;
     byId("question-category").value = question.kind;
-    ["option-a", "option-b", "option-c", "option-d"].forEach((field, index) => { byId(field).value = question.options[index] || ""; });
-    byId("question-answer").value = String(question.answer);
+    byId("question-type").value = question.type || "multiple_choice";
+    renderQuestionTypeFields(question);
     byId("question-form").dataset.editingId = String(id);
     byId("question-dialog-title").textContent = "Editar questão";
     if (typeof byId("question-dialog").showModal === "function") byId("question-dialog").showModal();
@@ -179,6 +210,8 @@
     if (mode === "question") {
       byId("question-form").reset();
       delete byId("question-form").dataset.editingId;
+      byId("question-type").value = "multiple_choice";
+      renderQuestionTypeFields();
       byId("question-dialog-title").textContent = "Adicionar questão";
       if (typeof byId("question-dialog").showModal === "function") byId("question-dialog").showModal();
       else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
@@ -195,6 +228,7 @@
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
   byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
+  byId("question-type").addEventListener("change", () => renderQuestionTypeFields());
   byId("question-search").addEventListener("input", (event) => { questionSearch = event.target.value; renderRecords(); });
   byId("question-filter").addEventListener("change", (event) => { questionCategory = event.target.value; renderRecords(); });
   byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());
@@ -202,16 +236,16 @@
   byId("question-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const prompt = byId("question-prompt").value.trim();
-    const options = ["option-a", "option-b", "option-c", "option-d"].map((id) => byId(id).value.trim());
-    if (!prompt || options.some((option) => !option)) { notify("Preencha o enunciado e as quatro alternativas."); return; }
+    const type = byId("question-type").value;
+    const result = readQuestionTypeFields(type);
+    if (!prompt || !result.valid) { notify(result.error || "Preencha os campos obrigatórios."); return; }
     const editingId = Number(byId("question-form").dataset.editingId);
+    const data = {prompt, kind:byId("question-category").value, type, ...result.data, updated:"Agora"};
     if (editingId) {
       const existing = demoQuestions.find((question) => question.id === editingId);
-      if (existing) Object.assign(existing, { prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
+      if (existing) Object.assign(existing, data);
       delete byId("question-form").dataset.editingId;
-    } else {
-      demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
-    }
+    } else demoQuestions.unshift({id:nextQuestionId++, ...data});
     saveDemoQuestions();
     byId("question-form").reset();
     byId("question-dialog").close();

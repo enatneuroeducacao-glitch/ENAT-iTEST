@@ -112,7 +112,7 @@
     }
     byId("question-tools").classList.toggle("hidden", activeView !== "questions");
     byId("view-all").classList.toggle("hidden", activeView === "questions");
-    byId("new-exam").textContent = activeView === "questions" ? "＋ Nova questão" : "＋ Criar avaliação";
+    byId("new-exam").textContent = activeView === "questions" ? "＋ Nova questão" : activeView === "classes" ? "♧ Gerenciar turma" : activeView === "results" ? "⌁ Ver resultados" : activeView === "reports" ? "▥ Abrir relatórios" : "＋ Criar avaliação";
     byId("metric-exams").textContent = String(12 + records.length - 3);
     byId("metric-questions").textContent = String(125 + demoQuestions.length);
     byId("question-nav-count").textContent = String(demoQuestions.length);
@@ -193,7 +193,7 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  byId("new-exam").addEventListener("click", () => openDialog(activeView === "questions" ? "question" : "exam"));
+  byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
   byId("question-search").addEventListener("input", (event) => { questionSearch = event.target.value; renderRecords(); });
   byId("question-filter").addEventListener("change", (event) => { questionCategory = event.target.value; renderRecords(); });
@@ -221,8 +221,8 @@
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
     const action = button.dataset.action;
     if (action === "exam" || action === "question") openDialog(action);
-    else if (action === "class") { navigate("classes"); notify("Área demonstrativa de turmas aberta."); }
-    else if (action === "report") navigate("results");
+    else if (action === "class") { navigate("classes"); notify("Turmas e alunos: área demonstrativa aberta. O cadastro próprio será implementado em etapa separada."); }
+    else if (action === "report") { navigate("results"); notify("Área de resultados demonstrativos aberta; nenhum dado real foi calculado."); }
   }));
   byId("view-all").addEventListener("click", () => navigate("exams"));
   byId("mobile-menu").addEventListener("click", () => {

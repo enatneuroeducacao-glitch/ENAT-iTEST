@@ -106,18 +106,23 @@ async function importCSV(file) {
     const incomingSignatures = new Set();
     const duplicateRows = [];
     incoming.forEach((q, i) => { const sig = signature(q); if (incomingSignatures.has(sig)) duplicateRows.push(i + 2); incomingSignatures.add(sig); });
-    if (duplicateRows.length) throw new Error("há questões duplicadas dentro do CSV, nas linhas: " + duplicateRows.slice(0, 20).join(", ") + (duplicateRows.length > 20 ? "…" : "") + ". Nada foi gravado.");
     const existing = readQuestions();
     const choice = window.prompt(
-      "Importação validada: " + incoming.length + " questões.\n\n" +
-      "Digite 1 para SUBSTITUIR todo o banco local (um backup CSV será baixado antes).\n" +
-      "Digite 2 para ADICIONAR às questões existentes, ignorando duplicadas.\n" +
+      "Validação estrutural concluída: " + incoming.length + " questões no CSV.\\n" +
+      (duplicateRows.length ? "Atenção: foram encontradas " + duplicateRows.length + " linhas duplicadas dentro do arquivo.\\n" : "") + "\\n" +
+      "Digite 1 para SUBSTITUIR o banco local. As linhas duplicadas do CSV serão ignoradas e um backup será baixado antes.\\n" +
+      "Digite 2 para ADICIONAR às questões existentes.\\n" +
       "Digite 0 ou cancele para não alterar nada.",
       "1"
     );
     if (choice !== "1" && choice !== "2") { notify("Importação cancelada; banco mantido sem alterações."); return; }
     let target = incoming;
     let skipped = 0;
+    if (choice === "1") {
+      const signatures = new Set();
+      target = incoming.filter(q => { const sig = signature(q); if (signatures.has(sig)) { skipped++; return false; } signatures.add(sig); return true; });
+    }
+    if (choice === "2" && duplicateRows.length) throw new Error("há questões duplicadas dentro do CSV, nas linhas: " + duplicateRows.slice(0, 20).join(", ") + (duplicateRows.length > 20 ? "…" : "") + ". Use SUBSTITUIR para importar sem duplicadas ou corrija o arquivo.");
     if (choice === "2") {
       const signatures = new Set(existing.map(signature));
       target = incoming.filter(q => { const sig = signature(q); if (signatures.has(sig)) { skipped++; return false; } signatures.add(sig); return true; });
@@ -130,12 +135,12 @@ async function importCSV(file) {
     const maxExistingId = choice === "1" ? 0 : Math.max(0, ...existing.map(q => Number(q.id) || 0));
     const stamp = new Date().toLocaleDateString("pt-BR");
     const imported = target.map((q, i) => {
-      const requestedId = choice === "1" ? Number(rows[i + 1] && rows[i + 1][header.indexOf("id")]) : NaN;
+      const requestedId = NaN;
       return {...q,id:Number.isSafeInteger(requestedId) && requestedId > 0 && !existing.some(old => old.id === requestedId) ? requestedId : maxExistingId + i + 1,updated:"Importada em " + stamp};
     });
     const finalQuestions = choice === "1" ? imported : existing.concat(imported);
     window.localStorage.setItem(KEY, JSON.stringify(finalQuestions));
-    notify(choice === "1" ? "Banco substituído: " + imported.length + " questões. Recarregando." : "Adicionadas " + imported.length + " questões; " + skipped + " duplicadas ignoradas. Recarregando.");
+    notify(choice === "1" ? "Banco substituído: " + imported.length + " questões; " + skipped + " duplicadas do CSV ignoradas. Recarregando." : "Adicionadas " + imported.length + " questões; " + skipped + " duplicadas ignoradas. Recarregando.");
     window.setTimeout(() => window.location.reload(), 900);
   } catch (error) { notify("Importação cancelada; nada foi gravado. " + error.message); }
   finally { const input = $("import-questions-file"); if (input) input.value = ""; }

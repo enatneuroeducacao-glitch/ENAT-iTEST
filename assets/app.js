@@ -124,6 +124,31 @@
 
 
   function assessmentQuestions(record){return (Array.isArray(record.questionIds)?record.questionIds:[]).map(id=>demoQuestions.find(q=>q.id===id)).filter(Boolean);}
+  function shuffled(items) {
+    const result = items.slice();
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+  function questionSetSignature(ids) {
+    return ids.map(Number).sort((a, b) => a - b).join(",");
+  }
+  function drawUniqueQuestions(subjects, count, editingId = 0) {
+    const pool = demoQuestions.filter((question) => subjects.includes(question.kind) && Number.isInteger(question.id));
+    if (pool.length < count) {
+      return { error: "O banco tem apenas " + pool.length + " questão(ões) nas matérias selecionadas; são necessárias " + count + ". Cadastre ou importe mais questões antes de montar a prova." };
+    }
+    const usedSets = new Set(records.filter((record) => record.id !== editingId).map((record) => questionSetSignature(record.questionIds || [])));
+    for (let attempt = 0; attempt < 300; attempt++) {
+      const selection = shuffled(pool).slice(0, count);
+      const ids = selection.map((question) => question.id);
+      const signature = questionSetSignature(ids);
+      if (!usedSets.has(signature)) return { questions: selection, ids };
+    }
+    return { error: "Não foi possível montar uma combinação inédita com as questões disponíveis. Adicione mais questões ou altere as matérias/quantidade." };
+  }
   function answerText(q){if(q.type==="true_false")return q.answer===0?"Verdadeiro":"Falso";if(q.type==="multiple_choice"||!q.type)return String.fromCharCode(65+(Number(q.answer)||0));if(q.type==="matching")return(q.pairs||[]).map(p=>p.left+" → "+p.right).join("; ");return q.expectedAnswer||(q.type==="essay"?"Correção manual":"Resposta não informada");}
   function exportAssessmentCSV(id){const r=records.find(x=>x.id===id);if(!r)return notify("Avaliação não encontrada.");const rows=[["avaliacao","categoria","numero","tipo","enunciado","opcoes_ou_pares","gabarito"]];assessmentQuestions(r).forEach((q,i)=>rows.push([r.name,r.kind,i+1,q.type||"multiple_choice",q.prompt,q.type==="matching"?(q.pairs||[]).map(p=>p.left+" = "+p.right).join(" | "):(q.options||[]).join(" | "),answerText(q)]));const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="enat-itest-avaliacao-"+id+".csv";a.click();URL.revokeObjectURL(url);notify("Exportação CSV iniciada.");}
   function printAssessment(id,mode,withQr){const r=records.find(x=>x.id===id);if(!r)return notify("Avaliação não encontrada.");const qs=assessmentQuestions(r);if(!qs.length)return notify("Vincule questões à avaliação antes de imprimir.");const esc=safeText;const payload=JSON.stringify({app:"ENAT-iTEST",v:1,assessmentId:r.id,name:r.name,category:r.kind});const qr=withQr?'<aside><img alt="QR de identificação da avaliação" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data='+encodeURIComponent(payload)+'"><small>QR identifica a avaliação; não corrige respostas automaticamente.</small></aside>':"";const title=mode==="exam"?"Prova":mode==="sheet"?"Cartão-resposta":"Gabarito pronto";const body=qs.map((q,i)=>{if(mode==="key")return'<section><b>'+(i+1)+'. '+esc(q.prompt)+'</b><p class="key">Gabarito: '+esc(answerText(q))+'</p></section>';if(mode==="sheet")return'<section><b>'+(i+1)+'.</b> '+(q.type==="true_false"?"○ Verdadeiro　○ Falso":q.type==="multiple_choice"||!q.type?(q.options||[]).map((_,n)=>"○ "+String.fromCharCode(65+n)).join("　"):q.type==="matching"?(q.pairs||[]).map((_,n)=>"____ "+(n+1)).join("　"):"Resposta: ______________________________________")+'</section>';const opts=q.type==="matching"?(q.pairs||[]).map((p,n)=>'<li>'+esc(p.left+" — "+p.right)+'</li>').join(""):(q.options||[]).map(o=>'<li>'+esc(o)+'</li>').join("");return'<section><b>'+(i+1)+'. '+esc(q.prompt)+'</b>'+((q.type==="multiple_choice"||q.type==="true_false"||!q.type||q.type==="matching")?'<ol>'+opts+'</ol>':q.type==="essay"?'<div class="essay"></div>':'<div class="writing"></div>')+'</section>';}).join("");const w=window.open("","_blank");if(!w)return notify("Permita pop-ups no navegador para imprimir.");w.document.write('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>'+esc(title)+'</title><style>body{font:12pt Arial;margin:18mm;color:#111}header{border-bottom:2px solid;padding:0 0 12px;margin-bottom:20px}h1{font-size:20pt}aside{float:right;width:140px;text-align:center}aside img{width:120px}small{font-size:8pt}section{margin:20px 0;break-inside:avoid}.writing{height:45px;border-bottom:1px solid #aaa}.essay{height:130px;background:repeating-linear-gradient(transparent 0,transparent 25px,#aaa 26px)}.key{background:#eee;padding:8px;font-weight:bold}@media print{body{margin:12mm}}</style><body><header>'+qr+'<h1>ENAT iTEST — '+title+'</h1><h2>'+esc(r.name)+'</h2><p>Matérias: '+esc((r.subjects||[r.kind]).join(", "))+' · Questões: '+esc(r.questions||qs.length)+'</p>'+(mode==="key"?"":'<p>Nome: _____________________________________ Data: ____/____/______</p>')+'</header>'+body+'<p><small>Gerado pelo ENAT iTEST. O QR contém apenas identificação da avaliação. Leitura óptica e correção automatizada exigem módulo próprio.</small></p></body></html>');w.document.close();setTimeout(()=>w.print(),400);}
@@ -263,7 +288,6 @@
     Array.from(byId("exam-subjects").options).forEach((option) => { option.selected = (record.subjects || [record.kind]).includes(option.value); });
     byId("exam-answer-mode").value = record.answerMode || "system";
     byId("exam-questions").value = Math.max(Number(record.questions) || 1, (record.questionIds || []).length, 1);
-    renderQuestionSelection(record.questionIds || [], record.kind);
     byId("create-form").dataset.editingAssessmentId = String(id);
     if (typeof byId("create-dialog").showModal === "function") byId("create-dialog").showModal();
   }
@@ -287,7 +311,6 @@
     byId("dialog-title").textContent = "Criar avaliação";
     byId("dialog-description").textContent = "Crie uma avaliação. Ela será salva somente neste navegador até a conexão com o banco de dados ser implementada.";
     byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
-    renderQuestionSelection();
     if (typeof dialog.showModal === "function") dialog.showModal();
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
@@ -296,7 +319,6 @@
   byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
   byId("question-type").addEventListener("change", () => renderQuestionTypeFields());
-  byId("exam-category").addEventListener("change", () => renderQuestionSelection([], byId("exam-category").value));
   byId("question-search").addEventListener("input", (event) => { questionSearch = event.target.value; renderRecords(); });
   byId("question-filter").addEventListener("change", (event) => { questionCategory = event.target.value; renderRecords(); });
   byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());
@@ -349,14 +371,9 @@
       notify("Informe um nome e uma quantidade de questões entre 1 e 100.");
       return;
     }
-    const questionIds = Array.from(document.querySelectorAll('input[name="exam-question-id"]:checked')).map((input) => Number(input.value));
-    const invalidCategoryQuestion = questionIds.some((id) => { const q = demoQuestions.find((item) => item.id === id); return !q || q.kind !== category; });
-    if (invalidCategoryQuestion) { notify("A avaliação só pode vincular questões da mesma categoria."); return; }
-    if (questionIds.length > questions) {
-      notify("A quantidade de questões vinculadas não pode superar a quantidade definida para a avaliação.");
-      return;
-    }
-    const editingAssessmentId = Number(byId("create-form").dataset.editingAssessmentId);
+    const editingAssessmentId = Number(byId("create-form").dataset.editingAssessmentId) || 0;
+    const draw = drawUniqueQuestions(subjects, questions, editingAssessmentId);
+    if (draw.error) { notify(draw.error); return; }
     if (editingAssessmentId) {
       const record = records.find((item) => item.id === editingAssessmentId);
       if (!record) { notify("Não foi possível localizar a avaliação."); return; }
@@ -364,14 +381,16 @@
       record.kind = category;
       record.subjects = subjects;
       record.answerMode = answerMode;
-      record.questions = questionIds.length || questions;
-      record.questionIds = questionIds;
+      record.questions = draw.ids.length;
+      record.questionIds = draw.ids;
+      record.status = "draft";
+      record.statusLabel = "Rascunho";
       record.updated = "Agora";
       delete byId("create-form").dataset.editingAssessmentId;
-      notify("Questões vinculadas à avaliação atualizadas neste navegador.");
+      notify("Prova remontada com uma combinação inédita de questões.");
     } else {
-      records.unshift({id:nextId++,name,kind:category,subjects,answerMode,questions:questionIds.length || questions,questionIds,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
-      notify("Avaliação salva neste navegador. A sincronização com servidor ainda não está disponível.");
+      records.unshift({id:nextId++,name,kind:category,subjects,answerMode,questions:draw.ids.length,questionIds:draw.ids,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+      notify("Prova montada com " + draw.ids.length + " questões sorteadas. A combinação não repete nenhuma prova já registrada neste navegador.");
     }
     saveDemoRecords();
     byId("create-form").reset();

@@ -157,7 +157,11 @@
   function drawUniqueQuestions(subjects, count, editingId = 0) {
     const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && [question.kind, question.category, question.subject, question.subcategory, question.topic].some((value) => typeof value === "string" && subjects.includes(value.trim())));
     if (pool.length < count) {
-      return { error: "O banco tem apenas " + pool.length + " questão(ões) nas matérias selecionadas; são necessárias " + count + ". Cadastre ou importe mais questões antes de montar a prova." };
+      const total = demoQuestions.length;
+      const reason = total === 0
+        ? "Este navegador não tem questões carregadas. O banco central ainda não está conectado a esta versão do ENAT iTEST; importe o arquivo CSV do banco em Banco de questões ou conecte a fonte de dados antes de montar a prova."
+        : "Há " + total + " questão(ões) carregadas neste navegador, mas nenhuma corresponde às categorias selecionadas (ou não há questões suficientes). Confira a classificação das questões no Banco de questões ou importe uma versão categorizada do banco.";
+      return { error: reason + " Encontradas nas categorias selecionadas: " + pool.length + "; necessárias: " + count + "." };
     }
     const usedSets = new Set(records.filter((record) => record.id !== editingId).map((record) => questionSetSignature(record.questionIds || [])));
     for (let attempt = 0; attempt < 300; attempt++) {
@@ -303,7 +307,6 @@
     byId("dialog-title").textContent = "Gerenciar questões da avaliação";
     byId("dialog-description").textContent = "Avaliação: " + record.name + ". Marque as questões que devem compor esta avaliação. Para criar novas, use o Banco de questões e volte aqui.";
     byId("exam-name").value = record.name;
-    byId("exam-category").value = record.kind;
     byId("exam-subjects").querySelectorAll('input[name="exam-subjects"]').forEach((input) => { input.checked = (record.subjects || [record.kind]).includes(input.value); });
     byId("exam-answer-mode").value = record.answerMode || "system";
     byId("exam-questions").value = Math.max(Number(record.questions) || 1, (record.questionIds || []).length, 1);

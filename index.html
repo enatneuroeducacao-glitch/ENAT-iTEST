@@ -52,7 +52,7 @@
           <div id="question-tools" class="question-tools hidden">
             <label class="sr-only" for="question-search">Pesquisar questões</label><input id="question-search" type="search" placeholder="Pesquisar enunciado ou categoria…">
             <label class="sr-only" for="question-filter">Filtrar por categoria</label><select id="question-filter"><option value="">Todas as categorias</option><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
-            <button class="secondary-button" id="export-questions" type="button">Exportar banco</button><button class="secondary-button" id="import-questions-button" type="button">Importar CSV</button><input id="import-questions-file" type="file" accept=".csv,text/csv" hidden><button class="primary-button" id="add-question" type="button">＋ Nova questão</button>
+            <button class="secondary-button" id="export-questions" type="button">Exportar CSV</button><button class="secondary-button" id="export-questions-pdf" type="button">Banco em PDF</button><button class="secondary-button" id="import-questions-button" type="button">Importar CSV</button><input id="import-questions-file" type="file" accept=".csv,text/csv" hidden><button class="primary-button" id="add-question" type="button">＋ Nova questão</button>
           </div>
           <div class="table-wrap"><table><thead><tr><th>AVALIAÇÃO</th><th>QUESTÕES</th><th>STATUS</th><th>ATUALIZAÇÃO</th><th></th></tr></thead><tbody id="records-body"></tbody></table></div>
           <div class="empty-state hidden" id="empty-state"><div>▤</div><strong>Nenhum registro nesta visualização</strong><span>Crie uma avaliação demonstrativa para começar.</span></div>
@@ -104,5 +104,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="assets/app.js?v=20261026-7" defer></script>
   <script src="assets/question-csv.js?v=20261026-1" defer></script>
+  <script src="assets/print-export.js?v=20261026-1" defer></script>
 </body>
 </html>

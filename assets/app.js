@@ -3,21 +3,15 @@
   const byId = (id) => document.getElementById(id);
   const demoStorageKey = "enat-itest-demo-assessments-v1";
   const questionStorageKey = "enat-itest-demo-questions-v1";
-  const demoQuestions = [
-    { id: 1, prompt: "Qual atitude contribui para reduzir o risco de sinistros no trânsito?", kind: "Educação para o trânsito", options: ["Respeitar os limites de velocidade", "Usar o celular ao dirigir", "Manter distância insuficiente", "Ignorar a sinalização"], answer: 0, updated: "Exemplo" },
-    { id: 2, prompt: "O que significa perceber riscos antes de agir no trânsito?", kind: "Neurotrânsito", options: ["Antecipar perigos e ajustar a conduta", "Confiar apenas na sorte", "Aumentar a velocidade sempre", "Desconsiderar outros usuários"], answer: 0, updated: "Exemplo" },
-    { id: 3, prompt: "Ao se aproximar de uma faixa de pedestres, o condutor deve:", kind: "Conhecimentos gerais", options: ["Acelerar para passar primeiro", "Observar e dar preferência conforme as regras", "Buzinar continuamente", "Desviar sem reduzir a atenção"], answer: 1, updated: "Exemplo" }
-  ];
+  // Catálogo inicia vazio: não exibir questões fictícias como conteúdo real.
+  const demoQuestions = [];
   try {
     const savedQuestions = JSON.parse(window.localStorage.getItem(questionStorageKey) || "[]");
     if (Array.isArray(savedQuestions)) savedQuestions.filter((q) => q && typeof q.prompt === "string" && Number.isInteger(q.id)).forEach((q) => demoQuestions.push(q));
   } catch (_) {}
-  let nextQuestionId = Math.max(3, ...demoQuestions.map((q) => Number(q.id) || 0)) + 1;
-  const records = [
-    { id: 1, name: "Fundamentos de segurança viária", kind: "Conhecimentos gerais", questions: 10, status: "ready", statusLabel: "Preparada", updated: "Hoje" },
-    { id: 2, name: "Atenção e percepção de risco", kind: "Neurotrânsito", questions: 15, status: "draft", statusLabel: "Rascunho", updated: "Ontem" },
-    { id: 3, name: "Comportamento no trânsito", kind: "Educação para o trânsito", questions: 20, status: "review", statusLabel: "Em revisão", updated: "22 out. 2026" }
-  ];
+  let nextQuestionId = Math.max(0, ...demoQuestions.map((q) => Number(q.id) || 0)) + 1;
+  // Não criar avaliações fictícias nem atribuir questões inexistentes a categorias.
+  const records = [];
   // Persist only records explicitly created in this browser demo; never store student or sensitive data.
   try {
     const saved = JSON.parse(window.localStorage.getItem(demoStorageKey) || "[]");
@@ -27,10 +21,10 @@
   } catch (_) {
     // Storage may be disabled or contain invalid data; the demo remains usable in memory.
   }
-  let nextId = Math.max(3, ...records.map((record) => Number(record.id) || 0)) + 1;
+  let nextId = Math.max(0, ...records.map((record) => Number(record.id) || 0)) + 1;
   function saveDemoQuestions() {
     try {
-      window.localStorage.setItem(questionStorageKey, JSON.stringify(demoQuestions.filter((q) => q.id > 3)));
+      window.localStorage.setItem(questionStorageKey, JSON.stringify(demoQuestions));
       return true;
     } catch (_) {
       notify("Questão disponível apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
@@ -39,7 +33,7 @@
   }
   function saveDemoRecords() {
     try {
-      window.localStorage.setItem(demoStorageKey, JSON.stringify(records.filter((record) => record.id > 3)));
+      window.localStorage.setItem(demoStorageKey, JSON.stringify(records));
       return true;
     } catch (_) {
       notify("Registro criado apenas nesta sessão: o navegador não permitiu salvar os dados locais.");
@@ -118,8 +112,8 @@
     byId("question-tools").classList.toggle("hidden", activeView !== "questions");
     byId("view-all").classList.toggle("hidden", activeView === "questions");
     byId("new-exam").textContent = activeView === "questions" ? "＋ Nova questão" : activeView === "classes" ? "♧ Gerenciar turma" : activeView === "results" ? "⌁ Ver resultados" : activeView === "reports" ? "▥ Abrir relatórios" : "＋ Criar avaliação";
-    byId("metric-exams").textContent = String(12 + records.length - 3);
-    byId("metric-questions").textContent = String(125 + demoQuestions.length);
+    byId("metric-exams").textContent = String(records.length);
+    byId("metric-questions").textContent = String(demoQuestions.length);
     byId("question-nav-count").textContent = String(demoQuestions.length);
     byId("exam-nav-count").textContent = String(records.length);
   }
@@ -154,7 +148,6 @@
   function editQuestion(id) {
     const question = demoQuestions.find((item) => item.id === id);
     if (!question) return;
-    if (id <= 3) { notify("Questões de exemplo do catálogo base são somente leitura. Crie uma questão própria para editar."); return; }
     byId("question-prompt").value = question.prompt;
     byId("question-category").value = question.kind;
     byId("question-type").value = question.type || "multiple_choice";
@@ -166,7 +159,6 @@
   function deleteQuestion(id) {
     const question = demoQuestions.find((item) => item.id === id);
     if (!question) return;
-    if (id <= 3) { notify("Questões de exemplo do catálogo base não podem ser excluídas."); return; }
     if (!window.confirm("Excluir esta questão demonstrativa deste navegador?")) return;
     demoQuestions.splice(demoQuestions.findIndex((item) => item.id === id), 1);
     saveDemoQuestions();
@@ -187,14 +179,16 @@
     byId("mobile-menu").setAttribute("aria-expanded", "false");
     renderRecords();
   }
-  function renderQuestionSelection(selectedIds = []) {
+  function renderQuestionSelection(selectedIds = [], category = "") {
     const container = byId("exam-question-selection");
     container.replaceChildren();
     if (!demoQuestions.length) {
       container.textContent = "Cadastre questões antes de vinculá-las.";
       return;
     }
-    demoQuestions.forEach((question) => {
+    const eligibleQuestions = demoQuestions.filter((question) => !category || question.kind === category);
+    if (!eligibleQuestions.length) { container.textContent = "Nenhuma questão cadastrada nesta categoria. Cadastre ou importe questões no Banco de questões."; return; }
+    eligibleQuestions.forEach((question) => {
       const label = document.createElement("label");
       label.className = "question-choice";
       const input = document.createElement("input");
@@ -216,7 +210,7 @@
     byId("exam-name").value = record.name;
     byId("exam-category").value = record.kind;
     byId("exam-questions").value = Math.max(Number(record.questions) || 1, (record.questionIds || []).length, 1);
-    renderQuestionSelection(record.questionIds || []);
+    renderQuestionSelection(record.questionIds || [], record.kind);
     byId("create-form").dataset.editingAssessmentId = String(id);
     if (typeof byId("create-dialog").showModal === "function") byId("create-dialog").showModal();
   }
@@ -246,6 +240,7 @@
   byId("new-exam").addEventListener("click", () => { if (activeView === "questions") openDialog("question"); else if (activeView === "classes") notify("O cadastro de turmas e alunos ainda não está implementado; este atalho não abrirá o formulário de avaliação."); else if (activeView === "results") navigate("results"); else if (activeView === "reports") navigate("reports"); else openDialog("exam"); });
   byId("add-question").addEventListener("click", () => openDialog("question"));
   byId("question-type").addEventListener("change", () => renderQuestionTypeFields());
+  byId("exam-category").addEventListener("change", () => renderQuestionSelection([], byId("exam-category").value));
   byId("question-search").addEventListener("input", (event) => { questionSearch = event.target.value; renderRecords(); });
   byId("question-filter").addEventListener("change", (event) => { questionCategory = event.target.value; renderRecords(); });
   byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());
@@ -296,6 +291,8 @@
       return;
     }
     const questionIds = Array.from(document.querySelectorAll('input[name="exam-question-id"]:checked')).map((input) => Number(input.value));
+    const invalidCategoryQuestion = questionIds.some((id) => { const q = demoQuestions.find((item) => item.id === id); return !q || q.kind !== category; });
+    if (invalidCategoryQuestion) { notify("A avaliação só pode vincular questões da mesma categoria."); return; }
     if (questionIds.length > questions) {
       notify("A quantidade de questões vinculadas não pode superar a quantidade definida para a avaliação.");
       return;

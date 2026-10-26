@@ -53,7 +53,7 @@ assert.match(csv, /Importação cancelada; nada foi gravado/);
 const omr = fs.readFileSync("assets/scan-correction.js", "utf8");
 assert.match(omr, /function sampleAnswers\(/);
 assert.match(omr, /firstRowY=originY\+q\*3\.0/);
-assert.match(omr, /choicePitch=q\*\.43/);
+assert.match(omr, /choicePitch=q\*\.571/);
 assert.match(omr, /radius=q\*\.071/);
 assert.match(omr, /function decodeQr\(/);
 assert.match(omr, /Correção automática concluída/);

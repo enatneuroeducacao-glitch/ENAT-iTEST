@@ -43,4 +43,4 @@ console.log("ENAT iTEST smoke checks passed.");
 const backup = fs.readFileSync("assets/question-backup.js", "utf8");
 assert.match(backup, /function exportQuestions\s*\(/, "Question bank should support JSON export");
 assert.match(backup, /async function importQuestions\s*\(/, "Question bank should support JSON import");
-assert.match(backup, /validateQuestion\\(/, "Imported questions should be validated before storage");
+assert.match(backup, /validateQuestion\s*\(/, "Imported questions should be validated before storage");

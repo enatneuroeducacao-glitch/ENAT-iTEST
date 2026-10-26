@@ -161,3 +161,6 @@
     flex: 1 1 auto;
   }
 }
+
+/* Configuração de matérias e cartão-resposta da prova */
+.field-help{margin:6px 0 10px;color:#77899b;font-size:11px;line-height:1.5}.dialog select[multiple]{min-height:104px;padding:8px}.dialog select[multiple] option{padding:6px;border-radius:4px}.dialog select[multiple] option:checked{background:#dcecff linear-gradient(0deg,#dcecff 0%,#dcecff 100%);color:#174d83}

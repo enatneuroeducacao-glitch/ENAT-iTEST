@@ -188,7 +188,7 @@
     const values = [question.kind, question.category, question.subject, question.subcategory, question.topic, question.discipline, question.area, question.assunto];
     return values.some((value) => typeof value === "string" && value.trim() && selected.has(categoryGroup(value)));
   }
-  function drawUniqueQuestions(subjects, count, editingId = 0) {
+  function drawUniqueQuestions(subjects, count, editingId = 0, reservedSignatures = []) {
     const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && questionMatchesSelectedCategories(question, subjects));
     if (pool.length < count) {
       const total = demoQuestions.length;
@@ -205,6 +205,7 @@
       return { error: reason + categorySummary + " Encontradas nas categorias selecionadas: " + pool.length + "; necessárias: " + count + "." };
     }
     const usedSets = new Set(records.filter((record) => record.id !== editingId).map((record) => questionSetSignature(record.questionIds || [])));
+    reservedSignatures.forEach((signature) => usedSets.add(signature));
     const availableSignatures = new Set();
     for (let attempt = 0; attempt < 300; attempt++) {
       const selection = shuffled(pool).slice(0, count);
@@ -447,17 +448,35 @@
     event.preventDefault();
     const name = byId("exam-name").value.trim();
     const questions = Number(byId("exam-questions").value);
+    const quantityInput = byId("exam-quantity");
+    const quantityRequested = quantityInput ? Number(quantityInput.value) : 1;
     const subjects = Array.from(byId("exam-subjects").querySelectorAll('input[name="exam-subjects"]:checked')).map((input) => input.value);
     const category = subjects[0] || "";
     const answerMode = byId("exam-answer-mode").value;
-    if (!subjects.length) { notify("Selecione pelo menos uma matéria para a prova."); return; }
+    const editingAssessmentId = Number(byId("create-form").dataset.editingAssessmentId) || 0;
+    const quantity = editingAssessmentId ? 1 : quantityRequested;
+    if (!subjects.length) { notify("Selecione pelo menos uma categoria para a prova."); return; }
     if (!name || !Number.isInteger(questions) || questions < 1 || questions > 100) {
       notify("Informe um nome e uma quantidade de questões entre 1 e 100.");
       return;
     }
-    const editingAssessmentId = Number(byId("create-form").dataset.editingAssessmentId) || 0;
-    const draw = drawUniqueQuestions(subjects, questions, editingAssessmentId);
-    if (draw.error) { notify(draw.error); return; }
+    if (!Number.isInteger(quantityRequested) || quantityRequested < 1 || quantityRequested > 100) {
+      notify("Informe uma quantidade de provas entre 1 e 100.");
+      return;
+    }
+    const batch = [];
+    const reservedSignatures = [];
+    for (let index = 0; index < quantity; index++) {
+      const draw = drawUniqueQuestions(subjects, questions, editingAssessmentId, reservedSignatures);
+      if (draw.error) {
+        notify(quantity > 1
+          ? "Não foi possível gerar todas as provas solicitadas. Foram preparadas " + batch.length + " de " + quantity + ". " + draw.error
+          : draw.error);
+        return;
+      }
+      batch.push(draw.ids);
+      reservedSignatures.push(questionSetSignature(draw.ids));
+    }
     if (editingAssessmentId) {
       const record = records.find((item) => item.id === editingAssessmentId);
       if (!record) { notify("Não foi possível localizar a avaliação."); return; }
@@ -465,20 +484,26 @@
       record.kind = category;
       record.subjects = subjects;
       record.answerMode = answerMode;
-      record.questions = draw.ids.length;
-      record.questionIds = draw.ids;
+      record.questions = batch[0].length;
+      record.questionIds = batch[0];
       record.status = "draft";
       record.statusLabel = "Rascunho";
       record.updated = "Agora";
       delete byId("create-form").dataset.editingAssessmentId;
-      notify("Prova remontada com uma combinação inédita de questões.");
+      notify("Avaliação remontada com uma combinação inédita de questões.");
     } else {
-      records.unshift({id:nextId++,name,kind:category,subjects,answerMode,questions:draw.ids.length,questionIds:draw.ids,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
-      notify("Prova montada com " + draw.ids.length + " questões sorteadas. A combinação não repete nenhuma prova já registrada neste navegador.");
+      batch.forEach((ids, index) => {
+        const label = quantity === 1 ? name : name + " — Prova " + String(index + 1).padStart(2, "0");
+        records.unshift({id:nextId++,name:label,kind:category,subjects,answerMode,questions:ids.length,questionIds:ids,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+      });
+      notify(quantity === 1
+        ? "Prova montada com " + batch[0].length + " questões sorteadas."
+        : "Foram montadas " + quantity + " provas diferentes, com " + questions + " questões cada.");
     }
     saveDemoRecords();
     byId("create-form").reset();
     byId("exam-questions").value = "10";
+    if (quantityInput) quantityInput.value = "1";
     byId("create-dialog").close();
     navigate("exams");
   });

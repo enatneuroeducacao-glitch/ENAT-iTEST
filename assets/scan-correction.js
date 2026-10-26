@@ -44,8 +44,8 @@
     const choices=[];
     // Printed OMR template: QR at 18 mm from page top/left; answer grid starts at 75 mm.
     // Geometry is scaled from the QR width, so image resolution may vary.
-    const firstRowY=originY+q*1.9, rowPitch=q*.20;
-    const firstChoiceX=originX+q*.57, choicePitch=q*.57, radius=q*.035;
+    const firstRowY=originY+q*3.0, rowPitch=q*.286;
+    const firstChoiceX=originX+q*.50, choicePitch=q*.43, radius=q*.071;
     for(let row=0;row<questionCount;row++){
       const scores=[];
       for(let col=0;col<5;col++) scores.push(darkness(canvas,firstChoiceX+col*choicePitch,firstRowY+row*rowPitch,radius));

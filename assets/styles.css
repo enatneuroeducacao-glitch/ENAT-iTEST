@@ -164,3 +164,9 @@
 
 /* Configuração de matérias e cartão-resposta da prova */
 .field-help{margin:6px 0 10px;color:#77899b;font-size:11px;line-height:1.5}.dialog select[multiple]{min-height:104px;padding:8px}.dialog select[multiple] option{padding:6px;border-radius:4px}.dialog select[multiple] option:checked{background:#dcecff linear-gradient(0deg,#dcecff 0%,#dcecff 100%);color:#174d83}
+
+
+/* Avisos de validação visíveis dentro de diálogos nativos */
+.dialog-feedback{display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #e7b7b7;border-left:4px solid #c43d3d;border-radius:8px;background:#fff1f1;color:#8d2525;font-size:12px;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.dialog-feedback.visible{display:block}
+.dialog-feedback:focus{outline:2px solid #c43d3d;outline-offset:2px}

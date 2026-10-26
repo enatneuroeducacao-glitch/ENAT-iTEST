@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#102c46">
   <meta name="description" content="ENAT iTEST — plataforma de avaliações educacionais, banco de questões e acompanhamento de aprendizagem.">
   <title>ENAT iTEST | Avaliações educacionais</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20261026-4">
+  <link rel="stylesheet" href="assets/styles.css?v=20261026-5">
 </head>
 <body>
 <div class="app-shell">
@@ -17,34 +17,34 @@
     <div class="workspace-label">ESPAÇO DE TRABALHO</div>
     <nav class="nav">
       <button class="nav-item active" data-view="overview"><span>▦</span>Visão geral</button>
-      <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em id="question-nav-count">3</em></button>
-      <button class="nav-item" data-view="exams"><span>▣</span>Avaliações <em id="exam-nav-count">12</em></button>
+      <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em id="question-nav-count">0</em></button>
+      <button class="nav-item" data-view="exams"><span>▣</span>Avaliações <em id="exam-nav-count">0</em></button>
       <button class="nav-item" data-view="classes"><span>♧</span>Turmas e alunos</button>
       <button class="nav-item" data-view="results"><span>⌁</span>Resultados</button>
       <button class="nav-item" data-view="reports"><span>▥</span>Relatórios</button>
     </nav>
     <div class="sidebar-bottom">
-      <div class="pilot-note"><span class="status-dot"></span><div><strong>Ambiente de demonstração</strong><small>Dados fictícios. Não usar em avaliações reais.</small></div></div>
-      <div class="profile"><span class="avatar">EN</span><span><strong>Administrador ENAT</strong><small>Perfil demonstrativo</small></span><span class="more">•••</span></div>
+      <div class="pilot-note"><span class="status-dot"></span><div><strong>Plataforma em implantação</strong><small>Questões e avaliações ficam neste navegador; backend ainda pendente.</small></div></div>
+      <div class="profile"><span class="avatar">EN</span><span><strong>Administrador ENAT</strong><small>Perfil local sem autenticação</small></span><span class="more">•••</span></div>
     </div>
   </aside>
   <main class="main">
     <header class="topbar">
       <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu" aria-expanded="false">☰</button>
       <div class="breadcrumbs"><span>ENAT iTEST</span><span class="crumb-sep">/</span><strong id="breadcrumb-title">Visão geral</strong></div>
-      <div class="top-actions"><span class="demo-pill"><span></span> MODO DEMONSTRAÇÃO</span><button class="icon-button" id="help-button" aria-label="Informações sobre a demonstração">?</button></div>
+      <div class="top-actions"><span class="demo-pill"><span></span> EM IMPLANTAÇÃO</span><button class="icon-button" id="help-button" aria-label="Informações sobre o sistema">?</button></div>
     </header>
     <div class="page-content">
       <section class="welcome-row">
         <div><div class="eyebrow">CENTRO DE AVALIAÇÕES ENAT</div><h1 id="page-title">Bom dia. Vamos aprender melhor.</h1><p id="page-subtitle">Acompanhe suas avaliações e organize o próximo passo do aprendizado.</p></div>
         <button class="primary-button" id="new-exam"><span>＋</span> Criar avaliação</button>
       </section>
-      <section class="notice" id="demo-notice"><span class="notice-icon">i</span><div><strong>Você está visualizando uma demonstração interativa.</strong><p>Os registros exibidos são fictícios e ficam apenas nesta sessão do navegador. Ainda não há banco de dados, login real ou importação de arquivos.</p></div><button id="dismiss-notice" aria-label="Fechar aviso">×</button></section>
-      <section class="metric-grid" aria-label="Indicadores demonstrativos">
-        <article class="metric-card"><div class="metric-top">Questões no catálogo <span class="metric-icon blue">▤</span></div><div class="metric-value" id="metric-questions">128</div><div class="metric-foot"><span class="metric-neutral">DEMO</span>Questões ilustrativas</div></article>
-        <article class="metric-card"><div class="metric-top">Avaliações criadas <span class="metric-icon violet">▣</span></div><div class="metric-value" id="metric-exams">12</div><div class="metric-foot"><span class="metric-neutral">DEMO</span>Inclui rascunhos</div></article>
-        <article class="metric-card"><div class="metric-top">Alunos cadastrados <span class="metric-icon teal">♧</span></div><div class="metric-value">246</div><div class="metric-foot"><span class="metric-neutral">DEMO</span>Sem dados pessoais reais</div></article>
-        <article class="metric-card"><div class="metric-top">Conclusão média <span class="metric-icon amber">⌁</span></div><div class="metric-value">84<span style="font-size:18px">%</span></div><div class="metric-foot"><span class="metric-neutral">DEMO</span>Indicador ilustrativo</div></article>
+      <section class="notice" id="demo-notice"><span class="notice-icon">i</span><div><strong>Plataforma em implantação: dados reais ainda não sincronizam com um servidor.</strong><p>O banco de questões e as avaliações criadas ficam neste navegador. Autenticação, banco de dados compartilhado, turmas, resultados e relatórios ainda precisam ser implementados.</p></div><button id="dismiss-notice" aria-label="Fechar aviso">×</button></section>
+      <section class="metric-grid" aria-label="Indicadores do sistema">
+        <article class="metric-card"><div class="metric-top">Questões cadastradas <span class="metric-icon blue">▤</span></div><div class="metric-value" id="metric-questions">0</div><div class="metric-foot">Registros deste navegador</div></article>
+        <article class="metric-card"><div class="metric-top">Avaliações cadastradas <span class="metric-icon violet">▣</span></div><div class="metric-value" id="metric-exams">0</div><div class="metric-foot">Registros deste navegador</div></article>
+        <article class="metric-card"><div class="metric-top">Alunos cadastrados <span class="metric-icon teal">♧</span></div><div class="metric-value">—</div><div class="metric-foot">Módulo ainda não disponível</div></article>
+        <article class="metric-card"><div class="metric-top">Conclusão média <span class="metric-icon amber">⌁</span></div><div class="metric-value">—</div><div class="metric-foot">Sem tentativas registradas</div></article>
       </section>
       <section class="dashboard-grid">
         <article class="panel">
@@ -62,25 +62,25 @@
           <button class="quick-action" data-action="question"><span class="quick-icon blue">＋</span><span><strong>Adicionar questão</strong><small>Monte uma nova questão</small></span><b>›</b></button>
           <button class="quick-action" data-action="exam"><span class="quick-icon violet">▣</span><span><strong>Criar avaliação</strong><small>Defina uma nova prova</small></span><b>›</b></button>
           <button class="quick-action" data-action="class"><span class="quick-icon teal">♧</span><span><strong>Organizar turma</strong><small>Gerencie grupos de alunos</small></span><b>›</b></button>
-          <button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte dados demonstrativos</small></span><b>›</b></button>
-          <div class="checklist"><div class="checklist-title"><span>✓</span> Preparação do ambiente</div><div class="check-row"><span class="check-pending">1</span><div><strong>Revisar banco de questões</strong><small>Importação legada ainda não habilitada</small></div></div><div class="check-row"><span class="check-pending">2</span><div><strong>Configurar perfis de acesso</strong><small>Autenticação real será implementada na etapa de backend</small></div></div><div class="check-row"><span class="check-pending">3</span><div><strong>Validar cópias de segurança</strong><small>Obrigatório antes de qualquer migração</small></div></div></div>
+          <button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte resultados registrados</small></span><b>›</b></button>
+          <div class="checklist"><div class="checklist-title"><span>✓</span> Preparação do ambiente</div><div class="check-row"><span class="check-pending">1</span><div><strong>Revisar banco de questões</strong><small>Importação CSV disponível no banco de questões</small></div></div><div class="check-row"><span class="check-pending">2</span><div><strong>Configurar perfis de acesso</strong><small>Autenticação real será implementada na etapa de backend</small></div></div><div class="check-row"><span class="check-pending">3</span><div><strong>Validar cópias de segurança</strong><small>Obrigatório antes de qualquer migração</small></div></div></div>
         </article>
       </section>
-      <footer class="footer"><span>© 2026 ENAT iTEST · Plataforma em desenvolvimento</span><span>Interface demonstrativa <span class="footer-dot">•</span> Dados fictícios</span></footer>
+      <footer class="footer"><span>© 2026 ENAT iTEST · Plataforma em desenvolvimento</span><span>Sistema em implantação <span class="footer-dot">•</span> Dados locais não sincronizados</span></footer>
     </div>
   </main>
 </div>
 <dialog class="dialog" id="create-dialog" aria-labelledby="dialog-title">
   <form id="create-form">
     <div class="dialog-head"><h2 id="dialog-title">Criar avaliação</h2><button class="icon-button" type="button" id="close-dialog" aria-label="Fechar">×</button></div>
-    <p class="dialog-description" id="dialog-description">Crie um registro de demonstração. Ele não será enviado para um servidor.</p>
+    <p class="dialog-description" id="dialog-description">Crie uma avaliação. Ela ficará neste navegador até o backend ser conectado.</p>
     <label for="exam-name">Nome da avaliação</label><input id="exam-name" name="exam-name" required maxlength="100" placeholder="Ex.: Fundamentos de segurança viária">
     <label for="exam-category">Categoria</label><select id="exam-category" name="exam-category"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
     <label for="exam-questions">Quantidade de questões</label><input id="exam-questions" name="exam-questions" type="number" min="1" max="100" value="10" required>
     <label for="exam-question-selection">Questões vinculadas (opcional)</label>
     <p class="dialog-description">Selecione questões próprias ou de exemplo para vincular a esta avaliação demonstrativa.</p>
     <div id="exam-question-selection" class="question-selection" aria-label="Selecionar questões"></div>
-    <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-dialog">Cancelar</button><button class="primary-button" type="submit">Criar demonstração</button></div>
+    <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-dialog">Cancelar</button><button class="primary-button" type="submit">Salvar avaliação</button></div>
   </form>
 </dialog>
 <dialog class="dialog" id="question-dialog" aria-labelledby="question-dialog-title">
@@ -102,7 +102,7 @@
   </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/app.js?v=20261026-5" defer></script>
+<script src="assets/app.js?v=20261026-6" defer></script>
   <script src="assets/question-csv.js?v=20261026-1" defer></script>
 </body>
 </html>

@@ -154,21 +154,64 @@
   function questionSetSignature(ids) {
     return ids.map(Number).sort((a, b) => a - b).join(",");
   }
+  function normalizeCategory(value) {
+    return String(value || "")
+      .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+      .toLocaleLowerCase("pt-BR")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\\s+/g, " ");
+  }
+  function categoryGroup(value) {
+    const category = normalizeCategory(value);
+    const groups = [
+      ["legislacao de transito", "legislacao", "codigo de transito", "ctb", "normas gerais de circulacao e conduta"],
+      ["infracoes de transito", "infracao de transito", "infracoes", "infracao", "penalidades e medidas administrativas", "crime de transito"],
+      ["direcao defensiva", "conducao defensiva"],
+      ["primeiros socorros", "atendimento pre hospitalar"],
+      ["meio ambiente e cidadania", "meio ambiente", "cidadania", "convivencia social"],
+      ["sinalizacao viaria", "sinalizacao", "placas de transito"],
+      ["mecanica basica e manutencao", "mecanica basica", "manutencao veicular"],
+      ["equipamentos obrigatorios e seguranca", "equipamentos obrigatorios", "seguranca veicular"],
+      ["conduta em situacoes de risco", "situacoes de risco", "prevencao de acidentes"],
+      ["mobilidade urbana e vulneraveis", "mobilidade urbana", "usuarios vulneraveis"],
+      ["formacao de condutores", "pratica de direcao", "habilitacao"],
+      ["conhecimentos gerais", "educacao para o transito", "educacao no transito", "seguranca no transito"]
+    ];
+    for (const group of groups) {
+      if (group.some((item) => category === item || category.includes(item) || item.includes(category))) return group[0];
+    }
+    return category;
+  }
+  function questionMatchesSelectedCategories(question, subjects) {
+    const selected = new Set(subjects.map(categoryGroup));
+    const values = [question.kind, question.category, question.subject, question.subcategory, question.topic, question.discipline, question.area, question.assunto];
+    return values.some((value) => typeof value === "string" && value.trim() && selected.has(categoryGroup(value)));
+  }
   function drawUniqueQuestions(subjects, count, editingId = 0) {
-    const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && [question.kind, question.category, question.subject, question.subcategory, question.topic].some((value) => typeof value === "string" && subjects.includes(value.trim())));
+    const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && questionMatchesSelectedCategories(question, subjects));
     if (pool.length < count) {
       const total = demoQuestions.length;
+      const availableCategories = [...new Set(demoQuestions.flatMap((question) =>
+        [question.kind, question.category, question.subject, question.subcategory, question.topic]
+          .filter((value) => typeof value === "string" && value.trim())
+      ))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+      const categorySummary = availableCategories.length
+        ? " Categorias existentes no banco: " + availableCategories.slice(0, 12).join(", ") + (availableCategories.length > 12 ? "…" : "") + "."
+        : " As questões não possuem campos de categoria reconhecidos.";
       const reason = total === 0
         ? "Este navegador não tem questões carregadas. O banco central ainda não está conectado a esta versão do ENAT iTEST; importe o arquivo CSV do banco em Banco de questões ou conecte a fonte de dados antes de montar a prova."
-        : "Há " + total + " questão(ões) carregadas neste navegador, mas nenhuma corresponde às categorias selecionadas (ou não há questões suficientes). Confira a classificação das questões no Banco de questões ou importe uma versão categorizada do banco.";
-      return { error: reason + " Encontradas nas categorias selecionadas: " + pool.length + "; necessárias: " + count + "." };
+        : "Há " + total + " questão(ões) carregadas neste navegador, mas somente " + pool.length + " correspondem às categorias selecionadas. Confira a classificação importada.";
+      return { error: reason + categorySummary + " Encontradas nas categorias selecionadas: " + pool.length + "; necessárias: " + count + "." };
     }
     const usedSets = new Set(records.filter((record) => record.id !== editingId).map((record) => questionSetSignature(record.questionIds || [])));
+    const availableSignatures = new Set();
     for (let attempt = 0; attempt < 300; attempt++) {
       const selection = shuffled(pool).slice(0, count);
       const ids = selection.map((question) => question.id);
       const signature = questionSetSignature(ids);
-      if (!usedSets.has(signature)) return { questions: selection, ids };
+      if (!usedSets.has(signature) && !availableSignatures.has(signature)) return { questions: selection, ids };
+      availableSignatures.add(signature);
     }
     return { error: "Não foi possível montar uma combinação inédita com as questões disponíveis. Adicione mais questões ou altere as matérias/quantidade." };
   }

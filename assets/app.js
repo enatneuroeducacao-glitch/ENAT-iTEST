@@ -99,11 +99,13 @@
       }
       list.forEach((record) => {
         const tr = document.createElement("tr");
-        const questionCount = Array.isArray(record.questionIds) && record.questionIds.length ? record.questionIds.length : record.questions;
-        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(questionCount) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td><button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button></td>';
+        const questionCount = Array.isArray(record.questionIds) ? record.questionIds.length : record.questions;
+        const isEditableAssessment = activeView === "exams" && record.id < 100;
+        tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▣</span><span><strong>' + safeText(record.name) + '</strong><small>' + safeText(record.kind) + '</small></span></div></td><td>' + safeText(questionCount) + '</td><td><span class="status ' + safeText(record.status) + '">' + safeText(record.statusLabel) + '</span></td><td>' + safeText(record.updated) + '</td><td>' + (isEditableAssessment ? '<button class="row-menu" aria-label="Gerenciar questões de ' + safeText(record.name) + '" data-manage-assessment="' + record.id + '">Gerenciar questões</button>' : '<button class="row-menu" aria-label="Opções para ' + safeText(record.name) + '" data-record="' + record.id + '">•••</button>') + '</td>';
         body.appendChild(tr);
       });
-      body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Ações de avaliação serão habilitadas na próxima etapa.")));
+      body.querySelectorAll("[data-record]").forEach((button) => button.addEventListener("click", () => notify("Este registro é ilustrativo e não pode ser editado.")));
+      body.querySelectorAll("[data-manage-assessment]").forEach((button) => button.addEventListener("click", () => manageAssessmentQuestions(Number(button.dataset.manageAssessment))));
     }
     byId("empty-state").classList.toggle("hidden", body.children.length > 0);
     if (activeView === "questions" && body.children.length === 0) {
@@ -206,6 +208,18 @@
       container.appendChild(label);
     });
   }
+  function manageAssessmentQuestions(id) {
+    const record = records.find((item) => item.id === id);
+    if (!record) return;
+    byId("dialog-title").textContent = "Gerenciar questões da avaliação";
+    byId("dialog-description").textContent = "Avaliação: " + record.name + ". Marque as questões que devem compor esta avaliação. Para criar novas, use o Banco de questões e volte aqui.";
+    byId("exam-name").value = record.name;
+    byId("exam-category").value = record.kind;
+    byId("exam-questions").value = Math.max(Number(record.questions) || 1, (record.questionIds || []).length, 1);
+    renderQuestionSelection(record.questionIds || []);
+    byId("create-form").dataset.editingAssessmentId = String(id);
+    if (typeof byId("create-dialog").showModal === "function") byId("create-dialog").showModal();
+  }
   function openDialog(mode) {
     if (mode === "question") {
       byId("question-form").reset();
@@ -218,6 +232,9 @@
       return;
     }
     const dialog = byId("create-dialog");
+    delete byId("create-form").dataset.editingAssessmentId;
+    byId("create-form").reset();
+    byId("exam-questions").value = "10";
     byId("dialog-title").textContent = "Criar avaliação";
     byId("dialog-description").textContent = "Crie um registro de demonstração. Ele não será enviado para um servidor.";
     byId("exam-name").placeholder = "Ex.: Fundamentos de segurança viária";
@@ -283,13 +300,26 @@
       notify("A quantidade de questões vinculadas não pode superar a quantidade definida para a avaliação.");
       return;
     }
-    records.unshift({id:nextId++,name,kind:category,questions:questionIds.length || questions,questionIds,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+    const editingAssessmentId = Number(byId("create-form").dataset.editingAssessmentId);
+    if (editingAssessmentId) {
+      const record = records.find((item) => item.id === editingAssessmentId);
+      if (!record) { notify("Não foi possível localizar a avaliação."); return; }
+      record.name = name;
+      record.kind = category;
+      record.questions = questionIds.length || questions;
+      record.questionIds = questionIds;
+      record.updated = "Agora";
+      delete byId("create-form").dataset.editingAssessmentId;
+      notify("Questões vinculadas à avaliação atualizadas neste navegador.");
+    } else {
+      records.unshift({id:nextId++,name,kind:category,questions:questionIds.length || questions,questionIds,status:"draft",statusLabel:"Rascunho",updated:"Agora"});
+      notify("Avaliação demonstrativa criada. Neste protótipo, ela fica salva apenas neste navegador; não use dados pessoais ou reais.");
+    }
     saveDemoRecords();
     byId("create-form").reset();
     byId("exam-questions").value = "10";
     byId("create-dialog").close();
     navigate("exams");
-    notify("Avaliação demonstrativa criada. Neste protótipo, ela fica salva apenas neste navegador; não use dados pessoais ou reais.");
   });
   navigate("overview");
 })();

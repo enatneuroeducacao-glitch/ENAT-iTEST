@@ -62,7 +62,7 @@
           <button class="quick-action" data-action="question"><span class="quick-icon blue">＋</span><span><strong>Adicionar questão</strong><small>Monte uma nova questão</small></span><b>›</b></button>
           <button class="quick-action" data-action="exam"><span class="quick-icon violet">▣</span><span><strong>Criar avaliação</strong><small>Defina uma nova prova</small></span><b>›</b></button>
           <button class="quick-action" data-action="class"><span class="quick-icon teal">♧</span><span><strong>Organizar turma</strong><small>Gerencie grupos de alunos</small></span><b>›</b></button>
-          <button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte resultados registrados</small></span><b>›</b></button>
+          <button class="quick-action" id="open-correction"><span class="quick-icon amber">⌕</span><span><strong>Corrigir provas</strong><small>Digitalize uma folha de respostas</small></span><b>›</b></button><button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte resultados registrados</small></span><b>›</b></button>
           <div class="checklist"><div class="checklist-title"><span>✓</span> Preparação do ambiente</div><div class="check-row"><span class="check-pending">1</span><div><strong>Revisar banco de questões</strong><small>Importação CSV disponível no banco de questões</small></div></div><div class="check-row"><span class="check-pending">2</span><div><strong>Configurar perfis de acesso</strong><small>Autenticação real será implementada na etapa de backend</small></div></div><div class="check-row"><span class="check-pending">3</span><div><strong>Validar cópias de segurança</strong><small>Obrigatório antes de qualquer migração</small></div></div></div>
         </article>
       </section>
@@ -101,8 +101,16 @@
     <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-question-dialog">Cancelar</button><button class="primary-button" type="submit">Salvar questão</button></div>
   </form>
 </dialog>
+<dialog class="dialog correction-dialog" id="correction-dialog" aria-labelledby="correction-title">
+  <div class="dialog-head"><h2 id="correction-title">Corrigir provas</h2><button class="icon-button" id="close-correction" type="button" aria-label="Fechar">×</button></div>
+  <p class="dialog-description">Envie uma imagem da folha de respostas. Esta etapa identifica o QR Code e prepara a conferência; ainda não calcula notas nem grava resultados.</p>
+  <div class="scan-controls"><label class="secondary-button" for="scan-file">Selecionar imagem</label><input id="scan-file" type="file" accept="image/png,image/jpeg,image/webp,image/bmp"><button class="secondary-button" id="scan-camera" type="button">Usar câmera do dispositivo</button><button class="secondary-button" id="scan-reset" type="button">Limpar</button></div>
+  <div id="scan-status" class="scan-status" role="status" aria-live="polite">Envie uma imagem para iniciar a identificação da folha.</div>
+  <div id="scan-preview" class="scan-preview"></div><div id="scan-result" class="scan-result"></div>
+  <div class="dialog-actions"><button class="primary-button" type="button" id="close-correction-bottom">Fechar</button></div>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/app.js?v=20261026-7" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261026-7" defer></script>\n<script src="assets/scan-correction.js?v=20261026-1" defer></script>
   <script src="assets/question-csv.js?v=20261026-1" defer></script>
   <script src="assets/print-export.js?v=20261026-1" defer></script>
 </body>

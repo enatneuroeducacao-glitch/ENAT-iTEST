@@ -129,7 +129,21 @@
     else notify("Seu navegador não suporta a janela de cadastro. Use um navegador atualizado.");
   }
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.view)));
-  byId("new-exam").addEventListener("click", () => openDialog("exam"));\n  byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());\n  byId("cancel-question-dialog").addEventListener("click", () => byId("question-dialog").close());\n  byId("question-form").addEventListener("submit", (event) => {\n    event.preventDefault();\n    const prompt = byId("question-prompt").value.trim();\n    const options = ["option-a", "option-b", "option-c", "option-d"].map((id) => byId(id).value.trim());\n    if (!prompt || options.some((option) => !option)) { notify("Preencha o enunciado e as quatro alternativas."); return; }\n    demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });\n    saveDemoQuestions();\n    byId("question-form").reset();\n    byId("question-dialog").close();\n    navigate("questions");\n    notify("Questão demonstrativa salva neste navegador. O gabarito não é publicado em uma API; ainda não há servidor.");\n  });
+  byId("new-exam").addEventListener("click", () => openDialog("exam"));
+  byId("close-question-dialog").addEventListener("click", () => byId("question-dialog").close());
+  byId("cancel-question-dialog").addEventListener("click", () => byId("question-dialog").close());
+  byId("question-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const prompt = byId("question-prompt").value.trim();
+    const options = ["option-a", "option-b", "option-c", "option-d"].map((id) => byId(id).value.trim());
+    if (!prompt || options.some((option) => !option)) { notify("Preencha o enunciado e as quatro alternativas."); return; }
+    demoQuestions.unshift({ id: nextQuestionId++, prompt, kind: byId("question-category").value, options, answer: Number(byId("question-answer").value), updated: "Agora" });
+    saveDemoQuestions();
+    byId("question-form").reset();
+    byId("question-dialog").close();
+    navigate("questions");
+    notify("Questão demonstrativa salva neste navegador. O gabarito não é publicado em uma API; ainda não há servidor.");
+  });
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
     const action = button.dataset.action;
     if (action === "exam" || action === "question") openDialog(action);

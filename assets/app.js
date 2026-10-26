@@ -155,7 +155,7 @@
     return ids.map(Number).sort((a, b) => a - b).join(",");
   }
   function drawUniqueQuestions(subjects, count, editingId = 0) {
-    const pool = demoQuestions.filter((question) => subjects.includes(question.kind) && Number.isInteger(question.id));
+    const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && [question.kind, question.category, question.subject, question.subcategory, question.topic].some((value) => typeof value === "string" && subjects.includes(value.trim())));
     if (pool.length < count) {
       return { error: "O banco tem apenas " + pool.length + " questão(ões) nas matérias selecionadas; são necessárias " + count + ". Cadastre ou importe mais questões antes de montar a prova." };
     }

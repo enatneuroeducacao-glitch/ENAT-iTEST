@@ -21,11 +21,13 @@ jobs:
           test -f index.html
           test -f assets/styles.css
           test -f assets/app.js
+          test -f assets/question-backup.js
           test -f docs/ROADMAP.md
           test -f docs/LEGACY-IMPORT.md
       - name: Check JavaScript syntax
         run: |
           node --check assets/app.js
+          node --check assets/question-backup.js
           node --check tests/smoke-test.js
       - name: Run smoke tests
         run: node tests/smoke-test.js

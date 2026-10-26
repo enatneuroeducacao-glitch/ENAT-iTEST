@@ -304,7 +304,7 @@
     byId("dialog-description").textContent = "Avaliação: " + record.name + ". Marque as questões que devem compor esta avaliação. Para criar novas, use o Banco de questões e volte aqui.";
     byId("exam-name").value = record.name;
     byId("exam-category").value = record.kind;
-    Array.from(byId("exam-subjects").options).forEach((option) => { option.selected = (record.subjects || [record.kind]).includes(option.value); });
+    byId("exam-subjects").querySelectorAll('input[name="exam-subjects"]').forEach((input) => { input.checked = (record.subjects || [record.kind]).includes(input.value); });
     byId("exam-answer-mode").value = record.answerMode || "system";
     byId("exam-questions").value = Math.max(Number(record.questions) || 1, (record.questionIds || []).length, 1);
     byId("create-form").dataset.editingAssessmentId = String(id);
@@ -325,7 +325,7 @@
     delete byId("create-form").dataset.editingAssessmentId;
     byId("create-form").reset();
     byId("exam-questions").value = "10";
-    Array.from(byId("exam-subjects").options).forEach((option) => { option.selected = option.value === byId("exam-category").value; });
+    byId("exam-subjects").querySelectorAll('input[name="exam-subjects"]').forEach((input) => { input.checked = input.value === "Educação para o trânsito"; });
     byId("exam-answer-mode").value = "system";
     byId("dialog-title").textContent = "Criar avaliação";
     byId("dialog-description").textContent = "Crie uma avaliação. Ela será salva somente neste navegador até a conexão com o banco de dados ser implementada.";
@@ -382,8 +382,8 @@
     event.preventDefault();
     const name = byId("exam-name").value.trim();
     const questions = Number(byId("exam-questions").value);
-    const category = byId("exam-category").value;
-    const subjects = Array.from(byId("exam-subjects").selectedOptions).map((option) => option.value);
+    const subjects = Array.from(byId("exam-subjects").querySelectorAll('input[name="exam-subjects"]:checked')).map((input) => input.value);
+    const category = subjects[0] || "";
     const answerMode = byId("exam-answer-mode").value;
     if (!subjects.length) { notify("Selecione pelo menos uma matéria para a prova."); return; }
     if (!name || !Number.isInteger(questions) || questions < 1 || questions > 100) {

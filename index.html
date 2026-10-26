@@ -49,6 +49,11 @@
       <section class="dashboard-grid">
         <article class="panel">
           <div class="panel-heading"><div><h2 id="list-title">Avaliações recentes</h2><p id="list-description">Organize, revise e prepare atividades de aprendizagem.</p></div><button class="text-button" id="view-all">Ver todas <span>→</span></button></div>
+          <div id="question-tools" class="question-tools hidden">
+            <label class="sr-only" for="question-search">Pesquisar questões</label><input id="question-search" type="search" placeholder="Pesquisar enunciado ou categoria…">
+            <label class="sr-only" for="question-filter">Filtrar por categoria</label><select id="question-filter"><option value="">Todas as categorias</option><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
+            <button class="primary-button" id="add-question" type="button">＋ Nova questão</button>
+          </div>
           <div class="table-wrap"><table><thead><tr><th>AVALIAÇÃO</th><th>QUESTÕES</th><th>STATUS</th><th>ATUALIZAÇÃO</th><th></th></tr></thead><tbody id="records-body"></tbody></table></div>
           <div class="empty-state hidden" id="empty-state"><div>▤</div><strong>Nenhum registro nesta visualização</strong><span>Crie uma avaliação demonstrativa para começar.</span></div>
         </article>

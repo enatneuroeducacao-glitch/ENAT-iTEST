@@ -14,10 +14,39 @@
     }
     return result;
   }
+  function normalizeQuestion(question) {
+    const q = { ...question };
+    const prompt = normalized(q.prompt || "");
+    const options = Array.isArray(q.options) ? q.options.slice() : [];
+    // Corrige no simulado o item legado que separou os dois espaços da lacuna
+    // (idade e altura) em oito alternativas independentes. O banco original
+    // no localStorage permanece intacto.
+    const isAgeHeightQuestion =
+      prompt.includes("criancas com idade inferior a") &&
+      prompt.includes("altura") &&
+      options.length === 8 &&
+      options.filter(option => /\\b\\d+\\s*anos?\\b/i.test(String(option))).length >= 3 &&
+      options.filter(option => /\\d[,.]?\\d*\\s*m\\b/i.test(String(option))).length >= 3;
+    if (isAgeHeightQuestion) {
+      q.options = [
+        String(options[0]).trim() + " e " + String(options[1]).trim(),
+        String(options[2]).trim() + " e " + String(options[3]).trim(),
+        String(options[4]).trim() + " e " + String(options[5]).trim(),
+        String(options[6]).trim() + " e " + String(options[7]).trim()
+      ];
+      // O critério legal descrito no enunciado é idade inferior a 10 anos
+      // e altura inferior a 1,45 m; a alternativa D contém os dois limites.
+      q.answer = 3;
+      q.type = "multiple_choice";
+    }
+    return q;
+  }
   function loadBank() {
     try {
       const value = JSON.parse(localStorage.getItem(QUESTIONS_KEY) || "[]");
-      state.bank = Array.isArray(value) ? value.filter(q => q && Number.isInteger(Number(q.id)) && typeof q.prompt === "string" && q.prompt.trim()) : [];
+      state.bank = Array.isArray(value)
+        ? value.filter(q => q && Number.isInteger(Number(q.id)) && typeof q.prompt === "string" && q.prompt.trim()).map(normalizeQuestion)
+        : [];
     } catch (_) { state.bank = []; }
   }
   function saveSession() {

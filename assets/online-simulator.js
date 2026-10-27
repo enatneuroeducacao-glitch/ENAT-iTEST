@@ -26,7 +26,7 @@
       prompt.includes("altura") &&
       options.length === 8 &&
       options.filter(option => /\b\d+\s*anos?\b/i.test(String(option))).length >= 3 &&
-      options.filter(option => /\\d[,.]?\\d*\\s*m\\b/i.test(String(option))).length >= 3;
+      options.filter(option => /\d[,.]?\d*\s*m\b/i.test(String(option))).length >= 3;
     if (isAgeHeightQuestion) {
       q.options = [
         String(options[0]).trim() + " e " + String(options[1]).trim(),

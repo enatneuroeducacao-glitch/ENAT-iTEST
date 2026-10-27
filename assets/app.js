@@ -50,7 +50,8 @@
     exams: { title: "Avaliações", headline: "Avaliações", subtitle: "Crie e organize avaliações para diferentes objetivos de aprendizagem.", section: "Avaliações cadastradas", description: "Avaliações criadas neste navegador." },
     classes: { title: "Turmas e alunos", headline: "Turmas e alunos", subtitle: "Prepare a organização de grupos para futuras avaliações.", section: "Turmas e alunos", description: "A gestão de turmas e alunos ainda não está disponível." },
     results: { title: "Resultados", headline: "Resultados de aprendizagem", subtitle: "Acompanhe indicadores ilustrativos sem expor dados pessoais.", section: "Resultados", description: "Os resultados serão exibidos quando houver tentativas reais registradas." },
-    reports: { title: "Relatórios", headline: "Relatórios", subtitle: "Planeje análises de desempenho e acompanhamento educacional.", section: "Relatórios", description: "Relatórios disponíveis após a implementação dos registros de avaliação." }
+    reports: { title: "Relatórios", headline: "Relatórios", subtitle: "Planeje análises de desempenho e acompanhamento educacional.", section: "Relatórios", description: "Relatórios disponíveis após a implementação dos registros de avaliação." },
+    simulator: { title: "Simulado online", headline: "Simulado online ENAT", subtitle: "Pratique com o banco completo em rodadas de até 30 questões, sem repetição no mesmo ciclo.", section: "Simulado online", description: "Questões organizadas automaticamente em rodadas." }
   };
   function notify(message) {
     const toast = byId("toast");
@@ -339,6 +340,12 @@
     document.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
     byId("sidebar").classList.remove("open");
     byId("mobile-menu").setAttribute("aria-expanded", "false");
+    const isSimulator = view === "simulator";
+    byId("simulator-panel").classList.toggle("hidden", !isSimulator);
+    document.querySelector(".dashboard-grid").classList.toggle("hidden", isSimulator);
+    document.querySelector(".metric-grid").classList.toggle("hidden", isSimulator);
+    byId("demo-notice").classList.toggle("hidden", isSimulator || byId("demo-notice").dataset.dismissed === "true");
+    byId("new-exam").classList.toggle("hidden", isSimulator);
     renderRecords();
   }
   function renderQuestionSelection(selectedIds = [], category = "") {
@@ -440,7 +447,7 @@
     sidebar.classList.toggle("open", open);
     byId("mobile-menu").setAttribute("aria-expanded", String(open));
   });
-  byId("dismiss-notice").addEventListener("click", () => byId("demo-notice").classList.add("hidden"));
+  byId("dismiss-notice").addEventListener("click", () => { byId("demo-notice").classList.add("hidden"); byId("demo-notice").dataset.dismissed = "true"; });
   byId("help-button").addEventListener("click", () => notify("ENAT iTEST está em fase inicial. Nenhum dado real é armazenado ou enviado."));
   byId("close-dialog").addEventListener("click", () => byId("create-dialog").close());
   byId("cancel-dialog").addEventListener("click", () => byId("create-dialog").close());

@@ -222,3 +222,26 @@
 .simulator-summary .sim-score{font-size:20px;font-weight:800}
 .simulator-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:20px}
 @media(max-width:650px){.simulator-heading{display:block}.simulator-badge{display:inline-block;margin-top:12px}.simulator-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sim-options{grid-template-columns:1fr;margin-left:0}.sim-free-label{margin-left:0}.sim-question h3{font-size:14px}.simulator-actions button{flex:1 1 100%}}
+
+
+/* Resultado pedagógico: nota, aprovação e indicadores de revisão */
+.sim-result-score{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px;margin:14px 0;background:#fff;border:1px solid #d9e6f1;border-radius:12px}
+.sim-result-score>strong{font-size:32px;line-height:1;color:#173653;font-weight:850;letter-spacing:-.04em}
+.sim-verdict{display:inline-flex;align-items:center;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:800}
+.sim-verdict.approved{background:#dff7e9;color:#176a43}
+.sim-verdict.review{background:#fff0dc;color:#96520d}
+.sim-verdict.pending{background:#eaf2ff;color:#205ca5}
+.sim-study-panel{margin-top:18px;padding:16px;background:#f8fafc;border:1px solid #e1e8f0;border-radius:12px;color:#233d56}
+.sim-study-panel h4{font-size:16px;margin:0 0 12px}
+.sim-topic-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.sim-topic-chip{display:inline-flex;background:#fff1e8;border:1px solid #f4d4bd;color:#8e451e;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:750}
+.sim-error-list{padding-left:22px;margin:0}
+.sim-error-list li{padding:10px 0;border-bottom:1px solid #e5ebf1}
+.sim-error-list li:last-child{border-bottom:0}
+.sim-error-list strong{font-size:12px;color:#9a3b2d}
+.sim-error-list p{font-size:13px;line-height:1.5;margin:5px 0;color:#334b62}
+.sim-error-list small{display:block;color:#187653;font-size:12px;line-height:1.5}
+.sim-no-errors{background:#e7f8ef;border-radius:8px;padding:12px;color:#176a43;font-weight:650}
+.sim-manual-note{background:#fff8e9;border:1px solid #f3dfb1;border-radius:8px;padding:11px;color:#805616;font-size:12px}
+.sim-final-score{border-color:#bdd8f5;background:#f0f6ff}
+@media(max-width:650px){.sim-result-score{align-items:flex-start;flex-direction:column}.sim-result-score>strong{font-size:29px}}

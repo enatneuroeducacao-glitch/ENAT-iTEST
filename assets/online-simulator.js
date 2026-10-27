@@ -162,17 +162,30 @@
         answers[id] = checked ? checked.value : area ? area.value.trim() : "";
       });
       let correct = 0, autoGraded = 0, manual = 0, blank = 0;
+      const questionResults = [];
       session.currentIds.forEach(id => {
         const q = questionById(id);
+        if (!q) return;
         const answer = answers[id];
-        if (answer === "" || answer == null) blank++;
+        const isBlank = answer === "" || answer == null;
+        if (isBlank) blank++;
         const result = correctAnswer(q, answer);
-        if (result === null) manual++;
-        else { autoGraded++; if (result) correct++; }
+        const category = String(q.kind || q.category || q.subject || q.topic || "Sem categoria");
+        if (result === null) {
+          manual++;
+          questionResults.push({ id, category, prompt: q.prompt, answer, correct: null, expected: "", blank: isBlank });
+        } else {
+          autoGraded++;
+          if (result) correct++;
+          const type = q.type || "multiple_choice";
+          const answerIndex = Number.isInteger(q.answer) ? q.answer : (/^[A-E]$/i.test(String(q.answer)) ? String(q.answer).toUpperCase().charCodeAt(0) - 65 : Number(q.answer));
+          const expected = type === "true_false" ? (answerIndex === 0 ? "Verdadeiro" : "Falso") : ((q.options || [])[answerIndex] || "");
+          questionResults.push({ id, category, prompt: q.prompt, answer, correct: result, expected, blank: isBlank });
+        }
       });
       session.responses = answers;
       session.roundSubmitted = true;
-      session.lastResult = { correct, autoGraded, manual, blank, total: session.currentIds.length, at: new Date().toISOString() };
+      session.lastResult = { correct, autoGraded, manual, blank, total: session.currentIds.length, questionResults, score: Math.round((correct / Math.max(1, session.currentIds.length)) * 100) / 10, at: new Date().toISOString() };
       session.completed.push({ round: session.round, ids: session.currentIds.slice(), result: session.lastResult });
       session.cursor += session.currentIds.length;
       session.currentIds = [];
@@ -198,9 +211,57 @@
     const score = document.createElement("p");
     score.className = "sim-score";
     score.textContent = result.correct + " acerto(s) em " + result.autoGraded + " questão(ões) corrigidas automaticamente";
+    const scoreCard = document.createElement("div");
+    scoreCard.className = "sim-result-score";
+    const grade = document.createElement("strong");
+    grade.textContent = result.score.toFixed(1).replace(".", ",") + "/10";
+    const verdict = document.createElement("span");
+    verdict.className = "sim-verdict " + (result.manual ? "pending" : result.score >= 7 ? "approved" : "review");
+    verdict.textContent = result.manual ? "Nota provisória · correção manual pendente" : result.score >= 7 ? "Aprovado nesta rodada" : "Ainda não atingiu a média 7";
+    scoreCard.append(grade, verdict);
     const details = document.createElement("p");
-    details.textContent = (result.manual ? result.manual + " questão(ões) exigem avaliação manual. " : "") + (result.blank ? result.blank + " resposta(s) em branco." : "Nenhuma resposta em branco.");
-    summary.append(title, score, details);
+    details.textContent = result.correct + " acerto(s) de " + result.total + " questão(ões). " + (result.manual ? result.manual + " questão(ões) exigem avaliação manual. " : "") + (result.blank ? result.blank + " resposta(s) em branco." : "Nenhuma resposta em branco.");
+    summary.append(title, scoreCard, score, details);
+    const wrong = (result.questionResults || []).filter(item => item.correct === false || item.blank);
+    if (wrong.length) {
+      const study = document.createElement("section");
+      study.className = "sim-study-panel";
+      const studyTitle = document.createElement("h4");
+      studyTitle.textContent = "O que revisar";
+      const counts = new Map();
+      wrong.forEach(item => counts.set(item.category, (counts.get(item.category) || 0) + 1));
+      const topics = document.createElement("div");
+      topics.className = "sim-topic-list";
+      [...counts.entries()].sort((a,b)=>b[1]-a[1]).forEach(([category,count]) => {
+        const chip = document.createElement("span");
+        chip.className = "sim-topic-chip";
+        chip.textContent = category + " · " + count + " erro(s)";
+        topics.appendChild(chip);
+      });
+      const list = document.createElement("ol");
+      list.className = "sim-error-list";
+      wrong.slice(0, 12).forEach(item => {
+        const li = document.createElement("li");
+        const heading = document.createElement("strong");
+        heading.textContent = item.category + (item.blank ? " · Em branco" : " · Resposta incorreta");
+        const prompt = document.createElement("p");
+        prompt.textContent = item.prompt;
+        li.append(heading, prompt);
+        if (item.expected) {
+          const expected = document.createElement("small");
+          expected.textContent = "Resposta correta: " + item.expected;
+          li.appendChild(expected);
+        }
+        list.appendChild(li);
+      });
+      study.append(studyTitle, topics, list);
+      summary.appendChild(study);
+    } else {
+      const positive = document.createElement("p");
+      positive.className = "sim-no-errors";
+      positive.textContent = "Nenhum erro automático nesta rodada. Continue praticando para consolidar o aprendizado.";
+      summary.appendChild(positive);
+    }
     const remaining = state.session.poolIds.length - state.session.cursor;
     if (remaining > 0) {
       $("sim-next").classList.remove("hidden");
@@ -224,8 +285,61 @@
     title.textContent = "Ciclo completo!";
     const details = document.createElement("p");
     const totalCorrect = state.session ? state.session.completed.reduce((sum, item) => sum + (item.result?.correct || 0), 0) : 0;
-    const autoTotal = state.session ? state.session.completed.reduce((sum, item) => sum + (item.result?.autoGraded || 0), 0) : 0;
-    details.textContent = "Você percorreu todas as " + (state.session?.poolIds.length || 0) + " questões deste ciclo, sem repetir nenhuma. Resultado automático: " + totalCorrect + "/" + autoTotal + ".";
+    const totalQuestions = state.session ? state.session.completed.reduce((sum, item) => sum + (item.result?.total || 0), 0) : 0;
+    const manualTotal = state.session ? state.session.completed.reduce((sum, item) => sum + (item.result?.manual || 0), 0) : 0;
+    const finalScore = Math.round((totalCorrect / Math.max(1, totalQuestions)) * 100) / 10;
+    details.textContent = "Você percorreu todas as " + (state.session?.poolIds.length || 0) + " questões deste ciclo, sem repetir nenhuma. Resultado: " + totalCorrect + "/" + totalQuestions + " · nota " + finalScore.toFixed(1).replace(".", ",") + "/10.";
+    const finalCard = document.createElement("div");
+    finalCard.className = "sim-result-score sim-final-score";
+    const grade = document.createElement("strong");
+    grade.textContent = finalScore.toFixed(1).replace(".", ",") + "/10";
+    const verdict = document.createElement("span");
+    verdict.className = "sim-verdict " + (manualTotal ? "pending" : finalScore >= 7 ? "approved" : "review");
+    verdict.textContent = manualTotal ? "Resultado provisório · " + manualTotal + " resposta(s) exigem correção manual" : finalScore >= 7 ? "APROVADO · média mínima 7,0" : "EM REVISÃO · média mínima 7,0";
+    summary.append(title, finalCard, details);
+    finalCard.append(grade, verdict);
+    const errors = [];
+    state.session.completed.forEach(item => (item.result?.questionResults || []).forEach(q => { if (q.correct === false || q.blank) errors.push(q); }));
+    if (errors.length) {
+      const study = document.createElement("section");
+      study.className = "sim-study-panel";
+      const studyTitle = document.createElement("h4");
+      studyTitle.textContent = "Plano de estudo recomendado";
+      const counts = new Map();
+      errors.forEach(item => counts.set(item.category, (counts.get(item.category) || 0) + 1));
+      const topics = document.createElement("div");
+      topics.className = "sim-topic-list";
+      [...counts.entries()].sort((a,b)=>b[1]-a[1]).forEach(([category,count]) => {
+        const chip = document.createElement("span");
+        chip.className = "sim-topic-chip";
+        chip.textContent = category + " · " + count + " erro(s)";
+        topics.appendChild(chip);
+      });
+      const list = document.createElement("ol");
+      list.className = "sim-error-list";
+      errors.slice(0, 20).forEach(item => {
+        const li = document.createElement("li");
+        const heading = document.createElement("strong");
+        heading.textContent = item.category + (item.blank ? " · Em branco" : " · Resposta incorreta");
+        const prompt = document.createElement("p");
+        prompt.textContent = item.prompt;
+        li.append(heading, prompt);
+        if (item.expected) {
+          const expected = document.createElement("small");
+          expected.textContent = "Resposta correta: " + item.expected;
+          li.appendChild(expected);
+        }
+        list.appendChild(li);
+      });
+      study.append(studyTitle, topics, list);
+      summary.appendChild(study);
+    }
+    if (manualTotal) {
+      const note = document.createElement("p");
+      note.className = "sim-manual-note";
+      note.textContent = "A nota apresentada é provisória: questões discursivas, de associação ou outros tipos sem gabarito automático não contam como acertos até serem avaliadas.";
+      summary.appendChild(note);
+    }
     summary.append(title, details);
     setStatus("Todas as questões deste ciclo foram utilizadas. Inicie um novo ciclo para sortear outra ordem.");
     updateStats();

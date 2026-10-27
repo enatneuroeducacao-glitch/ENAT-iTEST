@@ -19,6 +19,7 @@
       <button class="nav-item active" data-view="overview"><span>▦</span>Visão geral</button>
       <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em id="question-nav-count">0</em></button>
       <button class="nav-item" data-view="exams"><span>▣</span>Avaliações <em id="exam-nav-count">0</em></button>
+      <button class="nav-item" data-view="simulator"><span>◉</span>Simulado online</button>
       <button class="nav-item" data-view="classes"><span>♧</span>Turmas e alunos</button>
       <button class="nav-item" data-view="results"><span>⌁</span>Resultados</button>
       <button class="nav-item" data-view="reports"><span>▥</span>Relatórios</button>
@@ -65,6 +66,16 @@
           <button class="quick-action" id="open-correction"><span class="quick-icon amber">⌕</span><span><strong>Corrigir provas</strong><small>Digitalize uma folha de respostas</small></span><b>›</b></button><button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte resultados registrados</small></span><b>›</b></button>
           <div class="checklist"><div class="checklist-title"><span>✓</span> Preparação do ambiente</div><div class="check-row"><span class="check-pending">1</span><div><strong>Revisar banco de questões</strong><small>Importação CSV disponível no banco de questões</small></div></div><div class="check-row"><span class="check-pending">2</span><div><strong>Configurar perfis de acesso</strong><small>Autenticação real será implementada na etapa de backend</small></div></div><div class="check-row"><span class="check-pending">3</span><div><strong>Validar cópias de segurança</strong><small>Obrigatório antes de qualquer migração</small></div></div></div>
         </article>
+      </section>
+      <section id="simulator-panel" class="simulator-panel hidden" aria-live="polite">
+        <div class="simulator-card">
+          <div class="simulator-heading"><div><div class="eyebrow">TREINO INDIVIDUAL</div><h2>Simulado online ENAT</h2><p>Questões do banco local em rodadas de até 30, sem repetir uma questão até concluir o ciclo completo.</p></div><span class="simulator-badge">30 por rodada</span></div>
+          <div class="simulator-stats"><div><small>Banco disponível</small><strong id="sim-total">0</strong></div><div><small>Respondidas no ciclo</small><strong id="sim-used">0</strong></div><div><small>Restantes</small><strong id="sim-remaining">0</strong></div><div><small>Rodada atual</small><strong id="sim-round">—</strong></div></div>
+          <div id="simulator-status" class="simulator-status" role="status">Carregando banco de questões…</div>
+          <div id="simulator-quiz" class="simulator-quiz hidden"></div>
+          <div id="simulator-summary" class="simulator-summary hidden"></div>
+          <div class="simulator-actions"><button class="secondary-button" id="sim-reset" type="button">Reiniciar ciclo</button><button class="primary-button" id="sim-start" type="button">Iniciar simulado</button><button class="primary-button hidden" id="sim-next" type="button">Próxima rodada</button></div>
+        </div>
       </section>
       <footer class="footer"><span>© 2026 ENAT iTEST · Plataforma em desenvolvimento</span><span>Sistema em implantação <span class="footer-dot">•</span> Dados locais não sincronizados</span></footer>
     </div>
@@ -131,7 +142,8 @@
   <div class="dialog-actions"><button class="primary-button" type="button" id="close-correction-bottom">Fechar</button></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261026-16" defer></script>\n<script src="assets/scan-correction.js?v=20261026-3" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261027-1" defer></script>
+<script src="assets/online-simulator.js?v=20261027-1" defer></script>\n<script src="assets/scan-correction.js?v=20261026-3" defer></script>
   <script src="assets/question-csv.js?v=20261026-2" defer></script>
   <script src="assets/print-export.js?v=20261026-1" defer></script>
 </body>

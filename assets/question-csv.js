@@ -77,7 +77,7 @@ function makeQuestion(record, rowNumber) {
     const i = item.indexOf("=>");
     return i < 0 ? {left:"",right:""} : {left:item.slice(0,i).trim(),right:item.slice(i+2).trim()};
   }) : [];
-  const q = {id,disciplineCode:discipline.code, prompt:(record.prompt || "").trim(),kind:discipline.name,type,options,answer,pairs,expectedAnswer:record.expectedAnswer || "",updated:record.updated || "Importada via CSV"};
+  const q = {id,disciplineCode:discipline.code, categoryConflict:discipline.categoryConflict, prompt:(record.prompt || "").trim(),kind:discipline.name,type,options,answer,pairs,expectedAnswer:record.expectedAnswer || "",updated:record.updated || "Importada via CSV"};
   if (!q.prompt) throw new Error("linha " + rowNumber + ": enunciado vazio.");
   if (!allowed.includes(type)) throw new Error("linha " + rowNumber + ": tipo de resposta desconhecido.");
   if (type === "multiple_choice" || type === "true_false") {

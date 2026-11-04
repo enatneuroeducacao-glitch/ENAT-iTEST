@@ -27,6 +27,7 @@ jobs:
           test -f docs/LEGACY-IMPORT.md
       - name: Check JavaScript syntax
         run: |
+          node --check assets/question-import-core.js
           node --check assets/app.js
           node --check assets/question-backup.js
           node --check assets/question-csv.js

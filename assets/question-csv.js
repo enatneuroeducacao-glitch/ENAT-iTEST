@@ -3,6 +3,8 @@
 const KEY = "enat-itest-demo-questions-v1";
 const $ = (id) => document.getElementById(id);
 const columns = ["id","prompt","category","type","options","answer","pairs","expectedAnswer","updated"];
+const Core = window.ENATQuestionImportCore;
+if (!Core) throw new Error("Módulo de integridade de importação não carregado.");
 const allowed = ["multiple_choice","true_false","matching","short_text","essay"];
 function notify(message) {
   const toast = $("toast");
@@ -64,6 +66,8 @@ function exportCSV() {
   } catch (error) { notify("Falha na exportação: " + error.message); }
 }
 function makeQuestion(record, rowNumber) {
+  const id = Core.normalizeId(record.id, rowNumber);
+  const discipline = Core.resolveDiscipline(id, record.category || record.kind, rowNumber);
   const type = (record.type || "multiple_choice").trim();
   const options = record.options ? record.options.split("|").map((v) => v.trim()) : [];
   const rawAnswer = (record.answer || "").trim();
@@ -73,7 +77,7 @@ function makeQuestion(record, rowNumber) {
     const i = item.indexOf("=>");
     return i < 0 ? {left:"",right:""} : {left:item.slice(0,i).trim(),right:item.slice(i+2).trim()};
   }) : [];
-  const q = {prompt:(record.prompt || "").trim(),kind:(record.category || record.kind || "Educação para o trânsito").trim(),type,options,answer,pairs,expectedAnswer:record.expectedAnswer || "",updated:record.updated || "Importada via CSV"};
+  const q = {id,disciplineCode:discipline.code, prompt:(record.prompt || "").trim(),kind:discipline.name,type,options,answer,pairs,expectedAnswer:record.expectedAnswer || "",updated:record.updated || "Importada via CSV"};
   if (!q.prompt) throw new Error("linha " + rowNumber + ": enunciado vazio.");
   if (!allowed.includes(type)) throw new Error("linha " + rowNumber + ": tipo de resposta desconhecido.");
   if (type === "multiple_choice" || type === "true_false") {
@@ -95,7 +99,7 @@ function showImportDialog({fileName,incomingCount,existingCount,duplicateRows,in
     dialog.style.maxWidth = "760px";
     dialog.style.width = "min(760px, calc(100vw - 32px))";
     const duplicateList = duplicateRows.length
-      ? '<div class="csv-duplicate-list"><strong>Linhas duplicadas no arquivo ('+duplicateRows.length+')</strong><p>'+duplicateRows.slice(0,30).map(n=>'Linha '+n).join(' · ')+(duplicateRows.length>30?' · …':'')+'</p><small>Na substituição, apenas uma ocorrência de cada questão idêntica será mantida.</small></div>'
+      ? '<div class="csv-duplicate-list"><strong>Linhas duplicadas no arquivo ('+duplicateRows.length+')</strong><p>'+duplicateRows.slice(0,30).map(n=>'Linha '+n).join(' · ')+(duplicateRows.length>30?' · …':'')+'</p><small>O conteúdo se repete, mas os IDs são diferentes. Todos serão mantidos para preservar os identificadores.</small></div>'
       : '<p class="csv-good">Nenhuma duplicidade exata interna detectada.</p>';
     const categoryRows = Object.entries(categoryCounts).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([name,count])=>'<li><span>'+escapeHtml(name)+'</span><b>'+count+'</b></li>').join("");
     const errors = [];
@@ -104,7 +108,7 @@ function showImportDialog({fileName,incomingCount,existingCount,duplicateRows,in
       '<div class="csv-summary-grid"><div><small>Questões válidas</small><strong>'+incomingCount+'</strong></div><div><small>Banco local atual</small><strong>'+existingCount+'</strong></div><div><small>Duplicidades no CSV</small><strong>'+duplicateRows.length+'</strong></div></div>'+
       '<h3>Categorias identificadas</h3><ul class="csv-category-list">'+categoryRows+'</ul>'+duplicateList+
       (errors.length?'<div class="csv-error-list"><strong>Erros de validação</strong><p>'+errors.map(escapeHtml).join("<br>")+'</p></div>':'')+
-      '<fieldset class="csv-import-options"><legend>Como deseja importar?</legend><label><input type="radio" name="csv-mode" value="replace" checked><span><b>Substituir banco local</b><small>Troca as questões locais pelas validadas neste CSV. Será baixado um backup antes da alteração.</small></span></label><label><input type="radio" name="csv-mode" value="append"><span><b>Adicionar às questões existentes</b><small>Preserva as questões atuais e inclui apenas questões novas. Duplicidades bloqueiam a operação.</small></span></label></fieldset>'+
+      '<fieldset class="csv-import-options"><legend>Como deseja importar?</legend><label><input type="radio" name="csv-mode" value="replace" checked><span><b>Substituir banco local</b><small>Troca as questões locais pelas validadas neste CSV. Será baixado um backup antes da alteração.</small></span></label><label><input type="radio" name="csv-mode" value="append"><span><b>Adicionar às questões existentes</b><small>Preserva as questões atuais e inclui os registros com seus IDs originais. IDs já existentes bloqueiam a operação.</small></span></label></fieldset>'+
       '<label class="csv-confirm"><input type="checkbox" id="csv-confirm-check"><span>Confirmo que revisei o resumo e autorizo a gravação <b>somente neste navegador</b>.</span></label>'+
       '<p class="dialog-description">Nenhum banco de produção ou servidor será alterado. Se a validação falhar, nada será gravado.</p>'+
       '<div class="dialog-actions"><button class="secondary-button" value="cancel">Cancelar</button><button class="primary-button" id="csv-confirm-import" value="confirm" disabled>Confirmar importação</button></div></form>';
@@ -122,66 +126,51 @@ async function importCSV(file) {
   if (!file) return;
   try {
     if (!/\.csv$/i.test(file.name)) throw new Error("selecione um arquivo .csv.");
-    if (file.size > 25 * 1024 * 1024) throw new Error("limite de 25 MB por arquivo.");
+    if (file.size > Core.MAX_FILE_BYTES) throw new Error("limite de arquivo: 2 MB.");
     const rows = parseCSV((await file.text()).replace(/^\uFEFF/, ""));
     if (rows.length < 2) throw new Error("CSV precisa de cabeçalho e ao menos uma questão.");
+    Core.assertLimits(file.size, rows.length - 1);
     const header = rows[0].map((v) => v.trim().toLocaleLowerCase("pt-BR"));
-    const missing = ["prompt","type"].filter((v) => !header.includes(v));
+    const missing = ["id","prompt","type"].filter((v) => !header.includes(v));
     if (missing.length) throw new Error("faltam colunas obrigatórias: " + missing.join(", "));
     const incoming = rows.slice(1).map((row, index) => {
       const record = {}; header.forEach((name, i) => { record[name] = row[i] || ""; });
       return makeQuestion(record, index + 2);
     });
     if (!incoming.length) throw new Error("nenhuma questão válida encontrada.");
-    const incomingSignatures = new Set();
+    Core.validateBatch(incoming, [], "replace");
+    const signatures = new Set();
     const duplicateRows = [];
-    incoming.forEach((q, i) => { const sig = signature(q); if (incomingSignatures.has(sig)) duplicateRows.push(i + 2); incomingSignatures.add(sig); });
+    incoming.forEach((q, i) => {
+      const sig = signature(q);
+      if (signatures.has(sig)) duplicateRows.push(i + 2);
+      signatures.add(sig);
+    });
     const existing = readQuestions();
-    const prefixCategories = {
-      DD:"Direção Defensiva", LT:"Legislação de Trânsito", CRT:"Crime de Trânsito",
-      INF:"Infração", NGCC:"Normas Gerais de Circulação e Conduta", SIN:"Sinalização",
-      PS:"Primeiros Socorros", CID:"Cidadania", MEI:"Meio Ambiente", MEC:"Mecânica Básica",
-      RI:"Relacionamento Interpessoal", PST:"Psicologia de Trânsito", PRA:"Prática de Direção",
-      ENGT:"Engenharia de Tráfego", DID:"Didática"
-    };
     const categoryCounts = {};
+    const categoryConflicts = [];
     incoming.forEach((q, index) => {
-      const sourceId = (rows[index + 1] || [])[header.indexOf("id")] || "";
-      const prefix = Object.keys(prefixCategories).sort((a,b)=>b.length-a.length).find(code => new RegExp("^"+code+"\\d","i").test(sourceId.trim()));
-      const category = prefix ? prefixCategories[prefix] : (q.kind || "Sem categoria identificada");
-      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-      if (prefix) q.kind = category;
+      categoryCounts[q.kind] = (categoryCounts[q.kind] || 0) + 1;
+      if (q.disciplineCode && q.disciplineCode !== "unknown" && q.categoryConflict) categoryConflicts.push(index + 2);
     });
     const choice = await showImportDialog({
       fileName:file.name, incomingCount:incoming.length, existingCount:existing.length,
       duplicateRows, incoming, categoryCounts
     });
     if (choice !== "replace" && choice !== "append") { notify("Importação cancelada; banco mantido sem alterações."); return; }
-    let target = incoming;
-    let skipped = 0;
-    if (choice === "replace") {
-      const signatures = new Set();
-      target = incoming.filter(q => { const sig = signature(q); if (signatures.has(sig)) { skipped++; return false; } signatures.add(sig); return true; });
-    }
-    if (choice === "append" && duplicateRows.length) throw new Error("há questões duplicadas dentro do CSV, nas linhas: " + duplicateRows.slice(0, 20).join(", ") + (duplicateRows.length > 20 ? "…" : "") + ". Use SUBSTITUIR para importar sem duplicadas ou corrija o arquivo.");
-    if (choice === "append") {
-      const signatures = new Set(existing.map(signature));
-      target = incoming.filter(q => { const sig = signature(q); if (signatures.has(sig)) { skipped++; return false; } signatures.add(sig); return true; });
-      if (!target.length) { notify("Nenhuma questão nova para adicionar; banco mantido."); return; }
-    } else if (existing.length) {
+    Core.validateBatch(incoming, existing, choice);
+    const stamp = new Date().toLocaleDateString("pt-BR");
+    const imported = incoming.map(q => ({...q,id:q.id,updated:"Importada em " + stamp}));
+    if (choice === "replace" && existing.length) {
       const backupLines = [columns.join(",")];
       existing.forEach((q) => backupLines.push([q.id,q.prompt,q.kind || q.category || "",q.type || "multiple_choice",(q.options || []).join("|"),Number.isInteger(q.answer) ? q.answer + 1 : "",(q.pairs || []).map(p => String(p.left || "") + "=>" + String(p.right || "")).join("|"),q.expectedAnswer || "",q.updated || ""].map(csvCell).join(",")));
       downloadCSV("enat-itest-backup-antes-substituicao-" + new Date().toISOString().slice(0,10) + ".csv", backupLines);
     }
-    const maxExistingId = choice === "replace" ? 0 : Math.max(0, ...existing.map(q => Number(q.id) || 0));
-    const stamp = new Date().toLocaleDateString("pt-BR");
-    const imported = target.map((q, i) => {
-      const requestedId = NaN;
-      return {...q,id:Number.isSafeInteger(requestedId) && requestedId > 0 && !existing.some(old => old.id === requestedId) ? requestedId : maxExistingId + i + 1,updated:"Importada em " + stamp};
-    });
     const finalQuestions = choice === "replace" ? imported : existing.concat(imported);
     window.localStorage.setItem(KEY, JSON.stringify(finalQuestions));
-    notify(choice === "replace" ? "Banco substituído: " + imported.length + " questões; " + skipped + " duplicadas do CSV ignoradas. Recarregando." : "Adicionadas " + imported.length + " questões; " + skipped + " duplicadas ignoradas. Recarregando.");
+    notify(choice === "replace"
+      ? "Banco substituído: " + imported.length + " questões. IDs originais preservados. Recarregando."
+      : "Adicionadas " + imported.length + " questões. IDs originais preservados. Recarregando.");
     window.setTimeout(() => window.location.reload(), 900);
   } catch (error) { notify("Importação cancelada; nada foi gravado. " + error.message); }
   finally { const input = $("import-questions-file"); if (input) input.value = ""; }

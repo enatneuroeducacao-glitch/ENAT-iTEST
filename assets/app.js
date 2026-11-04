@@ -9,7 +9,7 @@
     const savedQuestions = JSON.parse(window.localStorage.getItem(questionStorageKey) || "[]");
     if (Array.isArray(savedQuestions)) savedQuestions.filter((q) => q && typeof q.prompt === "string" && ((typeof q.id === "string" && q.id.trim()) || Number.isSafeInteger(q.id))).forEach((q) => demoQuestions.push({...q,id:String(q.id).trim()}));
   } catch (_) {}
-  let nextQuestionId = Math.max(0, ...demoQuestions.map((q) => /^\\d+$/.test(String(q.id)) ? Number(q.id) : 0)) + 1;
+  let nextQuestionId = Math.max(0, ...demoQuestions.map((q) => /^\d+$/.test(String(q.id)) ? Number(q.id) : 0)) + 1;
   // Não criar avaliações fictícias nem atribuir questões inexistentes a categorias.
   const records = [];
   // Persist only records explicitly created in this browser demo; never store student or sensitive data.

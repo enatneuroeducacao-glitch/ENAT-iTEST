@@ -6,6 +6,7 @@ const js = fs.readFileSync("assets/app.js", "utf8");
 const css = fs.readFileSync("assets/styles.css", "utf8");
 const readme = fs.readFileSync("README.md", "utf8");
 const csv = fs.readFileSync("assets/question-csv.js", "utf8");
+const importCore = require("../assets/question-import-core.js");
 
 assert.match(html, /<html lang="pt-BR">/);
 assert.match(html, /assets\/styles\.css/);
@@ -53,7 +54,7 @@ assert.match(csv, /function exportCSV\s*\(/);
 assert.match(csv, /async function importCSV\s*\(/);
 assert.match(csv, /function parseCSV\s*\(/);
 assert.match(csv, /function makeQuestion\s*\(/);
-assert.match(csv, /Importação cancelada; nada foi gravado/);
+assert.match(csv, /Importação cancelada; nada foi gravado/);\nassert.match(csv, /Core\\.normalizeId\\(record\\.id, rowNumber\\)/);\nassert.match(csv, /Core\\.validateBatch/);\nassert.doesNotMatch(csv, /requestedId\\s*=\\s*NaN/);\nassert.equal(Object.keys(importCore.DISCIPLINES).length, 17);\nassert.equal(importCore.normalizeId(" DD0110 ", 2), "DD0110");\nassert.equal(importCore.resolveDiscipline("DD0110", "Categoria 0", 2).name, "Direção Defensiva");\nassert.equal(importCore.resolveDiscipline("NEU0001", "Categoria 15", 2).name, "Neuroeducação Aplicada ao Trânsito");\nassert.equal(importCore.resolveDiscipline("PRO0001", "Categoria 16", 2).name, "Formação e Atuação Profissional");\nassert.throws(() => importCore.resolveDiscipline("XYZ0001", "Categoria 99", 2), /não foi possível classificar/);\nassert.equal(importCore.assertLimits(2 * 1024 * 1024, 1000), true);\nassert.throws(() => importCore.assertLimits(2 * 1024 * 1024 + 1, 1), /2 MB/);\nassert.throws(() => importCore.assertLimits(100, 1001), /1.000 questões/);\nassert.throws(() => importCore.validateBatch([{id:"DD0001"},{id:"dd0001"}], [], "replace"), /ID duplicado/);\nassert.throws(() => importCore.validateBatch([{id:"DD0001"}], [{id:"DD0001"}], "append"), /IDs já existentes/);
 const omr = fs.readFileSync("assets/scan-correction.js", "utf8");
 assert.match(omr, /function sampleAnswers\(/);
 assert.match(omr, /firstRowY=originY\+q\*3\.0/);

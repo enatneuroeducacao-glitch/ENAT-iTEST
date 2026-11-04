@@ -57,10 +57,10 @@
     try {
       const value = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
       if (value && Array.isArray(value.poolIds) && Number.isInteger(value.cursor) && Array.isArray(value.completed)) {
-        const available = new Set(state.bank.map(q => Number(q.id)));
-        value.poolIds = value.poolIds.filter(id => available.has(Number(id)));
+        const available = new Set(state.bank.map(q => String(q.id)));
+        value.poolIds = value.poolIds.map(String).filter(id => available.has(id));
         value.cursor = Math.min(value.cursor, value.poolIds.length);
-        value.currentIds = Array.isArray(value.currentIds) ? value.currentIds.filter(id => value.poolIds.includes(id)) : [];
+        value.currentIds = Array.isArray(value.currentIds) ? value.currentIds.map(String).filter(id => value.poolIds.includes(id)) : [];
         state.session = value;
         return;
       }

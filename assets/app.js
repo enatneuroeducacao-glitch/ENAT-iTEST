@@ -306,7 +306,7 @@
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function deleteQuestion(id) {
-    const question = demoQuestions.find((item) => item.id === id);
+    const question = demoQuestions.find((item) => String(item.id) === String(id));
     if (!question) return;
     if (!window.confirm("Excluir esta questão demonstrativa deste navegador?")) return;
     demoQuestions.splice(demoQuestions.findIndex((item) => String(item.id) === String(id)), 1);

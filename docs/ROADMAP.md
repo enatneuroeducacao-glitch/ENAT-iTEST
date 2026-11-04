@@ -13,6 +13,16 @@ O repositório contém uma primeira interface estática responsiva com dados sin
 - [ ] Executar testes em navegadores e dispositivos.
 - [ ] Definir estratégia de publicação.
 
+## Correções críticas em andamento — integridade do banco
+
+- [x] Criar branch isolada para correções críticas.
+- [x] Preservar IDs alfanuméricos de origem no importador CSV e no backup JSON.
+- [x] Reconhecer os 17 prefixos oficiais de disciplinas, sem inferir categoria a partir de rótulos genéricos.
+- [x] Padronizar CSV e JSON em 2 MB e 1.000 questões por arquivo.
+- [x] Adaptar avaliações, simulados e correção OMR para IDs textuais.
+- [ ] Executar testes automatizados e homologar importação em lotes.
+- [ ] Definir e implementar backend, autenticação e banco centralizado.
+
 ## Etapa 1 — Especificação e validação
 
 - Inventariar modelos de dados e regras de avaliação do sistema legado.

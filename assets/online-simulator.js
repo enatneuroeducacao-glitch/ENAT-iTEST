@@ -45,7 +45,7 @@
     try {
       const value = JSON.parse(localStorage.getItem(QUESTIONS_KEY) || "[]");
       state.bank = Array.isArray(value)
-        ? value.filter(q => q && Number.isInteger(Number(q.id)) && typeof q.prompt === "string" && q.prompt.trim()).map(normalizeQuestion)
+        ? value.filter(q => q && q.id != null && String(q.id).trim() && typeof q.prompt === "string" && q.prompt.trim()).map(q => ({...normalizeQuestion(q),id:String(q.id).trim()}))
         : [];
     } catch (_) { state.bank = []; }
   }
@@ -57,10 +57,10 @@
     try {
       const value = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
       if (value && Array.isArray(value.poolIds) && Number.isInteger(value.cursor) && Array.isArray(value.completed)) {
-        const available = new Set(state.bank.map(q => Number(q.id)));
-        value.poolIds = value.poolIds.filter(id => available.has(Number(id)));
+        const available = new Set(state.bank.map(q => String(q.id)));
+        value.poolIds = value.poolIds.map(String).filter(id => available.has(id));
         value.cursor = Math.min(value.cursor, value.poolIds.length);
-        value.currentIds = Array.isArray(value.currentIds) ? value.currentIds.filter(id => value.poolIds.includes(id)) : [];
+        value.currentIds = Array.isArray(value.currentIds) ? value.currentIds.map(String).filter(id => value.poolIds.includes(id)) : [];
         state.session = value;
         return;
       }
@@ -80,7 +80,7 @@
     $("sim-remaining").textContent = String(Math.max(0, total - used));
     $("sim-round").textContent = state.session ? String(state.session.round || 0) : "—";
   }
-  function questionById(id) { return state.bank.find(q => Number(q.id) === Number(id)); }
+  function questionById(id) { return state.bank.find(q => String(q.id) === String(id)); }
   function normalized(value) {
     return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
   }
@@ -382,7 +382,7 @@
       setStatus("O simulado anterior ainda está em andamento. Use Próxima rodada para continuar ou Reiniciar ciclo para recomeçar.", true);
       return;
     }
-    state.session = { poolIds: shuffle(state.bank.map(q => Number(q.id))), cursor: 0, round: 0, currentIds: [], responses: {}, completed: [], roundSubmitted: false };
+    state.session = { poolIds: shuffle(state.bank.map(q => String(q.id))), cursor: 0, round: 0, currentIds: [], responses: {}, completed: [], roundSubmitted: false };
     saveSession();
     $("sim-start").classList.add("hidden");
     $("simulator-summary").classList.add("hidden");

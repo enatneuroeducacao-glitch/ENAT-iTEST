@@ -7,9 +7,9 @@
   const demoQuestions = [];
   try {
     const savedQuestions = JSON.parse(window.localStorage.getItem(questionStorageKey) || "[]");
-    if (Array.isArray(savedQuestions)) savedQuestions.filter((q) => q && typeof q.prompt === "string" && Number.isInteger(q.id)).forEach((q) => demoQuestions.push(q));
+    if (Array.isArray(savedQuestions)) savedQuestions.filter((q) => q && typeof q.prompt === "string" && ((typeof q.id === "string" && q.id.trim()) || Number.isSafeInteger(q.id))).forEach((q) => demoQuestions.push({...q,id:String(q.id).trim()}));
   } catch (_) {}
-  let nextQuestionId = Math.max(0, ...demoQuestions.map((q) => Number(q.id) || 0)) + 1;
+  let nextQuestionId = Math.max(0, ...demoQuestions.map((q) => /^\d+$/.test(String(q.id)) ? Number(q.id) : 0)) + 1;
   // Não criar avaliações fictícias nem atribuir questões inexistentes a categorias.
   const records = [];
   // Persist only records explicitly created in this browser demo; never store student or sensitive data.
@@ -100,8 +100,8 @@
         tr.innerHTML = '<td><div class="exam-name"><span class="exam-type">▤</span><span><strong>' + safeText(question.prompt) + '</strong><small>' + safeText(question.kind) + ' · ' + typeLabel + '</small></span></div></td><td><span class="option-summary">' + countLabel + '</span></td><td><span class="status ready">' + safeText(answerLabel) + '</span><small class="answer-preview">' + safeText(answer) + '</small></td><td>' + safeText(question.updated || "Exemplo") + '</td><td class="question-row-actions"><button class="row-menu" aria-label="Editar questão" data-question-edit="' + question.id + '">Editar</button><button class="row-menu danger-action" aria-label="Excluir questão" data-question-delete="' + question.id + '">Excluir</button></td>';
         body.appendChild(tr);
       });
-      body.querySelectorAll("[data-question-edit]").forEach((button) => button.addEventListener("click", () => editQuestion(Number(button.dataset.questionEdit))));
-      body.querySelectorAll("[data-question-delete]").forEach((button) => button.addEventListener("click", () => deleteQuestion(Number(button.dataset.questionDelete))));
+      body.querySelectorAll("[data-question-edit]").forEach((button) => button.addEventListener("click", () => editQuestion(button.dataset.questionEdit)));
+      body.querySelectorAll("[data-question-delete]").forEach((button) => button.addEventListener("click", () => deleteQuestion(button.dataset.questionDelete)));
     } else {
       let list = records;
       if (activeView === "classes") {
@@ -143,7 +143,7 @@
   }
 
 
-  function assessmentQuestions(record){return (Array.isArray(record.questionIds)?record.questionIds:[]).map(id=>demoQuestions.find(q=>q.id===id)).filter(Boolean);}
+  function assessmentQuestions(record){return (Array.isArray(record.questionIds)?record.questionIds:[]).map(id=>demoQuestions.find(q=>String(q.id)===String(id))).filter(Boolean);}
   function shuffled(items) {
     const result = items.slice();
     for (let i = result.length - 1; i > 0; i--) {
@@ -152,9 +152,7 @@
     }
     return result;
   }
-  function questionSetSignature(ids) {
-    return ids.map(Number).sort((a, b) => a - b).join(",");
-  }
+  function questionSetSignature(ids) { return ids.map(String).sort((a, b) => a.localeCompare(b, "en")).join(","); }
   function normalizeCategory(value) {
     return String(value || "")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -165,24 +163,12 @@
   }
   function categoryGroup(value) {
     const category = normalizeCategory(value);
-    const groups = [
-      ["legislacao de transito", "legislacao", "codigo de transito", "ctb", "normas gerais de circulacao e conduta"],
-      ["infracoes de transito", "infracao de transito", "infracoes", "infracao", "penalidades e medidas administrativas", "crime de transito"],
-      ["direcao defensiva", "conducao defensiva"],
-      ["primeiros socorros", "atendimento pre hospitalar"],
-      ["meio ambiente e cidadania", "meio ambiente", "cidadania", "convivencia social"],
-      ["sinalizacao viaria", "sinalizacao", "placas de transito"],
-      ["mecanica basica e manutencao", "mecanica basica", "manutencao veicular"],
-      ["equipamentos obrigatorios e seguranca", "equipamentos obrigatorios", "seguranca veicular"],
-      ["conduta em situacoes de risco", "situacoes de risco", "prevencao de acidentes"],
-      ["mobilidade urbana e vulneraveis", "mobilidade urbana", "usuarios vulneraveis"],
-      ["formacao de condutores", "pratica de direcao", "habilitacao"],
-      ["conhecimentos gerais", "educacao para o transito", "educacao no transito", "seguranca no transito"]
-    ];
-    for (const group of groups) {
-      if (group.some((item) => category === item || category.includes(item) || item.includes(category))) return group[0];
-    }
-    return category;
+    const aliases = {
+      "crime de transito": "crimes de transito",
+      "infracao": "infracoes",
+      "infracao de transito": "infracoes"
+    };
+    return aliases[category] || category;
   }
   function questionMatchesSelectedCategories(question, subjects) {
     const selected = new Set(subjects.map(categoryGroup));
@@ -190,7 +176,7 @@
     return values.some((value) => typeof value === "string" && value.trim() && selected.has(categoryGroup(value)));
   }
   function drawUniqueQuestions(subjects, count, editingId = 0, reservedSignatures = []) {
-    const pool = demoQuestions.filter((question) => Number.isInteger(question.id) && questionMatchesSelectedCategories(question, subjects));
+    const pool = demoQuestions.filter((question) => question.id != null && String(question.id).trim() && questionMatchesSelectedCategories(question, subjects));
     if (pool.length < count) {
       const total = demoQuestions.length;
       const availableCategories = [...new Set(demoQuestions.flatMap((question) =>
@@ -267,7 +253,7 @@
     const expectedAnswer=byId("question-expected-answer").value.trim();if(type==="short_text"&&!expectedAnswer)return{valid:false,error:"Informe a resposta esperada."};return{valid:true,data:{expectedAnswer,options:[],answer:null}};
   }
   function editQuestion(id) {
-    const question = demoQuestions.find((item) => item.id === id);
+    const question = demoQuestions.find((item) => String(item.id) === String(id));
     if (!question) return;
     byId("question-prompt").value = question.prompt;
     byId("question-category").value = question.kind;
@@ -320,10 +306,10 @@
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function deleteQuestion(id) {
-    const question = demoQuestions.find((item) => item.id === id);
+    const question = demoQuestions.find((item) => String(item.id) === String(id));
     if (!question) return;
     if (!window.confirm("Excluir esta questão demonstrativa deste navegador?")) return;
-    demoQuestions.splice(demoQuestions.findIndex((item) => item.id === id), 1);
+    demoQuestions.splice(demoQuestions.findIndex((item) => String(item.id) === String(id)), 1);
     saveDemoQuestions();
     renderRecords();
     notify("Questão excluída deste navegador.");
@@ -364,7 +350,7 @@
       input.type = "checkbox";
       input.name = "exam-question-id";
       input.value = String(question.id);
-      input.checked = selectedIds.includes(question.id);
+      input.checked = selectedIds.some(id => String(id) === String(question.id));
       const text = document.createElement("span");
       text.textContent = question.prompt;
       label.append(input, text);
@@ -421,13 +407,13 @@
     const type = byId("question-type").value;
     const result = readQuestionTypeFields(type);
     if (!prompt || !result.valid) { notify(result.error || "Preencha os campos obrigatórios."); return; }
-    const editingId = Number(byId("question-form").dataset.editingId);
+    const editingId = byId("question-form").dataset.editingId || "";
     const data = {prompt, kind:byId("question-category").value, type, ...result.data, updated:"Agora"};
     if (editingId) {
-      const existing = demoQuestions.find((question) => question.id === editingId);
+      const existing = demoQuestions.find((question) => String(question.id) === String(editingId));
       if (existing) Object.assign(existing, data);
       delete byId("question-form").dataset.editingId;
-    } else demoQuestions.unshift({id:nextQuestionId++, ...data});
+    } else demoQuestions.unshift({id:String(nextQuestionId++), ...data});
     saveDemoQuestions();
     byId("question-form").reset();
     byId("question-dialog").close();

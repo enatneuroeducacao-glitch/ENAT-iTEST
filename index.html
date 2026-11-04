@@ -52,7 +52,7 @@
           <div class="panel-heading"><div><h2 id="list-title">Avaliações recentes</h2><p id="list-description">Organize, revise e prepare atividades de aprendizagem.</p></div><button class="text-button" id="view-all">Ver todas <span>→</span></button></div>
           <div id="question-tools" class="question-tools hidden">
             <label class="sr-only" for="question-search">Pesquisar questões</label><input id="question-search" type="search" placeholder="Pesquisar enunciado ou categoria…">
-            <label class="sr-only" for="question-filter">Filtrar por categoria</label><select id="question-filter"><option value="">Todas as categorias</option><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></select>
+            <label class="sr-only" for="question-filter">Filtrar por categoria</label><select id="question-filter"><option value="">Todas as disciplinas</option><option>Direção Defensiva</option><option>Legislação de Trânsito</option><option>Crimes de Trânsito</option><option>Infrações</option><option>Normas Gerais de Circulação e Conduta</option><option>Sinalização</option><option>Primeiros Socorros</option><option>Cidadania</option><option>Meio Ambiente</option><option>Mecânica Básica</option><option>Relacionamento Interpessoal</option><option>Psicologia de Trânsito</option><option>Prática de Direção</option><option>Engenharia de Tráfego</option><option>Didática</option><option>Neuroeducação Aplicada ao Trânsito</option><option>Formação e Atuação Profissional</option></select>
             <button class="secondary-button" id="review-duplicates" type="button">Revisar duplicadas</button><button class="secondary-button" id="export-questions" type="button">Exportar CSV</button><button class="secondary-button" id="export-questions-pdf" type="button">Banco em PDF</button><button class="secondary-button" id="import-questions-button" type="button">Importar CSV</button><input id="import-questions-file" type="file" accept=".csv,text/csv" hidden><button class="primary-button" id="add-question" type="button">＋ Nova questão</button>
           </div>
           <div class="table-wrap"><table><thead><tr><th>AVALIAÇÃO</th><th>QUESTÕES</th><th>STATUS</th><th>ATUALIZAÇÃO</th><th></th></tr></thead><tbody id="records-body"></tbody></table></div>
@@ -90,21 +90,23 @@
       <legend>Matérias e categorias da prova</legend>
       <p class="field-help">Marque uma ou mais categorias. Não é necessário usar Ctrl.</p>
       <div id="exam-subjects" class="subject-checkboxes">
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Educação para o trânsito" checked><span>Educação para o trânsito</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Neurotrânsito"><span>Neurotrânsito</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Conhecimentos gerais"><span>Conhecimentos gerais</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Formação de condutores"><span>Formação de condutores</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Legislação de trânsito"><span>Legislação de trânsito</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Sinalização viária"><span>Sinalização viária</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Infrações de trânsito"><span>Infrações de trânsito</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Penalidades e medidas administrativas"><span>Penalidades e medidas administrativas</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Direção defensiva"><span>Direção defensiva</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Primeiros socorros"><span>Primeiros socorros</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Meio ambiente e cidadania"><span>Meio ambiente e cidadania</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Mecânica básica e manutenção"><span>Mecânica básica e manutenção</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Equipamentos obrigatórios e segurança"><span>Equipamentos obrigatórios e segurança</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Conduta em situações de risco"><span>Conduta em situações de risco</span></label>
-        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Mobilidade urbana e vulneráveis"><span>Mobilidade urbana e vulneráveis</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Direção Defensiva" checked><span>Direção Defensiva</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Legislação de Trânsito"><span>Legislação de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Crimes de Trânsito"><span>Crimes de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Infrações"><span>Infrações</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Normas Gerais de Circulação e Conduta"><span>Normas Gerais de Circulação e Conduta</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Sinalização"><span>Sinalização</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Primeiros Socorros"><span>Primeiros Socorros</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Cidadania"><span>Cidadania</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Meio Ambiente"><span>Meio Ambiente</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Mecânica Básica"><span>Mecânica Básica</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Relacionamento Interpessoal"><span>Relacionamento Interpessoal</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Psicologia de Trânsito"><span>Psicologia de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Prática de Direção"><span>Prática de Direção</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Engenharia de Tráfego"><span>Engenharia de Tráfego</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Didática"><span>Didática</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Neuroeducação Aplicada ao Trânsito"><span>Neuroeducação Aplicada ao Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Formação e Atuação Profissional"><span>Formação e Atuação Profissional</span></label>
       </div>
       <p class="field-help" id="exam-subjects-help">As questões serão sorteadas apenas entre as categorias marcadas, desde que estejam classificadas assim no banco.</p>
     </fieldset>
@@ -120,7 +122,7 @@
     <div class="dialog-head"><h2 id="question-dialog-title">Adicionar questão</h2><button class="icon-button" type="button" id="close-question-dialog" aria-label="Fechar">×</button></div>
     <p class="dialog-description">Cadastre ou edite o enunciado, as alternativas e o gabarito. Nesta versão, as alterações ficam somente neste navegador.</p>
     <label for="question-prompt">Enunciado</label><textarea id="question-prompt" name="question-prompt" required maxlength="1200" rows="3" placeholder="Digite o enunciado da questão"></textarea>
-    <label for="question-category">Categoria</label><select id="question-category" name="question-category"><optgroup label="Áreas gerais"><option>Educação para o trânsito</option><option>Neurotrânsito</option><option>Conhecimentos gerais</option><option>Formação de condutores</option></optgroup><optgroup label="Categorias de trânsito"><option>Legislação de trânsito</option><option>Sinalização viária</option><option>Infrações de trânsito</option><option>Penalidades e medidas administrativas</option><option>Direção defensiva</option><option>Primeiros socorros</option><option>Meio ambiente e cidadania</option><option>Mecânica básica e manutenção</option><option>Equipamentos obrigatórios e segurança</option><option>Conduta em situações de risco</option><option>Mobilidade urbana e vulneráveis</option></optgroup></select>
+    <label for="question-category">Disciplina</label><select id="question-category" name="question-category"><option>Direção Defensiva</option><option>Legislação de Trânsito</option><option>Crimes de Trânsito</option><option>Infrações</option><option>Normas Gerais de Circulação e Conduta</option><option>Sinalização</option><option>Primeiros Socorros</option><option>Cidadania</option><option>Meio Ambiente</option><option>Mecânica Básica</option><option>Relacionamento Interpessoal</option><option>Psicologia de Trânsito</option><option>Prática de Direção</option><option>Engenharia de Tráfego</option><option>Didática</option><option>Neuroeducação Aplicada ao Trânsito</option><option>Formação e Atuação Profissional</option></select>
     <label for="question-type">Tipo de resposta</label>
     <select id="question-type" name="question-type">
       <option value="multiple_choice">Múltipla escolha</option>
@@ -142,9 +144,10 @@
   <div class="dialog-actions"><button class="primary-button" type="button" id="close-correction-bottom">Fechar</button></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261027-1" defer></script>
-<script src="assets/online-simulator.js?v=20261027-2" defer></script>\n<script src="assets/scan-correction.js?v=20261026-3" defer></script>
-  <script src="assets/question-csv.js?v=20261026-2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261104-1" defer></script>
+<script src="assets/online-simulator.js?v=20261104-1" defer></script>\n<script src="assets/scan-correction.js?v=20261104-1" defer></script>
+  <script src="assets/question-import-core.js?v=20261104-2" defer></script>
+  <script src="assets/question-csv.js?v=20261104-1" defer></script>
   <script src="assets/print-export.js?v=20261026-1" defer></script>
 </body>
 </html>

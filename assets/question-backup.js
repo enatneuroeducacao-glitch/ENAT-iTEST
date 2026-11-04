@@ -50,7 +50,7 @@
   }
 
   function validateQuestion(question) {
-    if (!question || typeof question !== "object") return false;
+    if (!question || typeof question !== "object" || question.id == null || !String(question.id).trim() || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(String(question.id).trim())) return false;
     if (typeof question.prompt !== "string" || !question.prompt.trim()) return false;
     if (typeof question.kind !== "string" || !question.kind.trim()) return false;
     const type = question.type || "multiple_choice";
@@ -80,10 +80,19 @@
       const invalid = incoming.findIndex((question) => !validateQuestion(question));
       if (invalid !== -1) throw new Error("A questão " + (invalid + 1) + " não passou na validação. Nenhum dado foi importado.");
       const existing = readStoredQuestions();
-      const nextId = Math.max(3, ...existing.map((question) => Number(question.id) || 0)) + 1;
-      const imported = incoming.map((question, index) => ({
+      const incomingIds = new Set();
+      incoming.forEach((question, index) => {
+        const id = String(question.id).trim();
+        const key = id.toLocaleUpperCase("pt-BR");
+        if (incomingIds.has(key)) throw new Error("ID duplicado no arquivo: " + id + ". Nenhum dado foi importado.");
+        incomingIds.add(key);
+      });
+      const existingIds = new Set(existing.map(question => String(question.id).trim().toLocaleUpperCase("pt-BR")));
+      const collisions = incoming.map(question => String(question.id).trim()).filter(id => existingIds.has(id.toLocaleUpperCase("pt-BR")));
+      if (collisions.length) throw new Error("IDs já existentes: " + [...new Set(collisions)].slice(0, 20).join(", ") + ". O sistema não renumera identificadores.");
+      const imported = incoming.map(question => ({
         ...question,
-        id: nextId + index,
+        id: String(question.id).trim(),
         type: question.type || "multiple_choice",
         updated: "Importada em " + new Date().toLocaleDateString("pt-BR")
       }));

@@ -18,7 +18,7 @@ O CSV deve usar UTF-8 (BOM é aceito) e conter os seguintes nomes de coluna:
 id,prompt,category,type,options,answer,pairs,expectedAnswer,updated
 ```
 
-- `id`: **obrigatório e preservado exatamente como recebido**. Aceita códigos alfanuméricos como `DD0110`, `NGCC0001`, `NEU0001` e `PRO0001`. Não é recalculado na importação.
+- `id`: **obrigatório e preservado exatamente como recebido**. Aceita códigos alfanuméricos como `DD0110`, `NGCC0001`, `NAT0001` e `FAP0001`. Não é recalculado na importação.
 - `prompt`: enunciado da questão.
 - `category`: nome oficial da disciplina. Se estiver genérico (por exemplo, `Categoria 0`), a disciplina é resolvida pelo prefixo oficial do ID. Se não houver prefixo reconhecido nem categoria oficial, a linha é rejeitada; nenhuma disciplina é inventada.
 - `type`: `multiple_choice`, `true_false`, `matching`, `short_text` ou `essay`.
@@ -49,10 +49,10 @@ Campos de texto com vírgulas, aspas ou quebras de linha devem seguir a regra CS
 | PRA | Prática de Direção |
 | ENGT | Engenharia de Tráfego |
 | DID | Didática |
-| NEU | Neuroeducação Aplicada ao Trânsito |
-| PRO | Formação e Atuação Profissional |
+| NAT | Neuroeducação Aplicada ao Trânsito |
+| FAP | Formação e Atuação Profissional |
 
-O prefixo do ID é a referência prioritária. Se o texto da categoria divergir do prefixo reconhecido, a classificação oficial do prefixo prevalece. Prefixos longos, como `NGCC` e `ENGT`, são reconhecidos integralmente.
+O prefixo do ID é a referência prioritária. Se o texto da categoria divergir do prefixo reconhecido, a classificação oficial do prefixo prevalece. Prefixos longos, como `NGCC` e `ENGT`, são reconhecidos integralmente. Para compatibilidade com lotes antigos, os prefixos históricos `NEU` e `PRO` ainda são lidos como `NAT` e `FAP`, respectivamente; novos IDs devem usar os códigos atualizados.
 
 ## Tipos
 

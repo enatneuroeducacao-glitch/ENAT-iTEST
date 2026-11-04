@@ -63,10 +63,13 @@
     "formacao e atuacao profissional": "Formação e Atuação Profissional"
   });
 
+  const LEGACY_PREFIXES = Object.freeze({ NEU: "NAT", PRO: "FAP" });
+
   function resolveDiscipline(idValue, categoryValue, rowNumber) {
     const id = normalizeId(idValue, rowNumber || 1);
     const prefixMatch = id.match(/^([A-Z]{2,4})\d/i);
-    const prefix = prefixMatch ? prefixMatch[1].toUpperCase() : null;
+    const rawPrefix = prefixMatch ? prefixMatch[1].toUpperCase() : null;
+    const prefix = rawPrefix ? (LEGACY_PREFIXES[rawPrefix] || rawPrefix) : null;
     const categoryKey = normalizeCategory(categoryValue);
     const suppliedCategory = CATEGORY_ALIASES[categoryKey] || null;
     if (prefix && DISCIPLINES[prefix]) {

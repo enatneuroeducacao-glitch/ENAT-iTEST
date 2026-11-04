@@ -1,2 +1,2 @@
-/* Chave publishable: pública por definição e protegida por RLS. Nunca inserir service_role/secret key no navegador. */
+/* Chave publishable: pública por definição e protegida por RLS. Nunca inserir credenciais privilegiadas no navegador. */
 window.ENAT_SUPABASE_CONFIG=Object.freeze({url:"https://ngevhyzltbotmrpnfiyf.supabase.co",publishableKey:"sb_publishable_KwUnq7YHEIL3gVNzkfUDgw_RiX00zx_" });

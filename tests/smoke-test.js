@@ -6,11 +6,11 @@ for(const id of ["login-form","register-form","reg-name","reg-email","reg-state"
 for(const file of ["assets/portal.css","assets/portal.js","assets/supabase-config.js","assets/question-import-core.js"])assert.ok(html.includes(file));
 for(const v of ["overview","assessment","history"])assert.ok(html.includes('data-view="'+v+'"'));
 assert.match(js,/signUp\(/);assert.match(js,/signInWithPassword/);assert.match(js,/functions\.invoke/);assert.match(js,/function renderQuestion/);assert.match(js,/function csvQuestions/);assert.match(js,/function importCSV/);
-assert.doesNotMatch(js,/localStorage|correct_index|service_role|secret key/i);assert.match(js,/answer_index:ans/);assert.match(js,/Selecione seu estado/);
+assert.doesNotMatch(js,/localStorage|correct_index|service_role|secret key/i);assert.match(js,/answer_index:ans/);assert.match(js,/Selecione seu estado/);assert.match(js,/show=a>=5/);
 assert.match(js,/length!==30/);assert.match(js,/state-body/);assert.match(js,/minimumFractionDigits:1/);
 assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/\.result-banner/);
 assert.match(config,/sb_publishable_/);assert.doesNotMatch(config,/service_role|sb_secret_/i);
-assert.match(edge,/action==="start"/);assert.match(edge,/action==="submit"/);assert.match(edge,/answer_index/);assert.match(edge,/score>=7/);assert.match(edge,/p\.role!=="admin"/);assert.match(edge,/total_questions:30/);
+assert.match(edge,/action==="start"/);assert.match(edge,/action==="submit"/);assert.match(edge,/answer_index/);assert.match(edge,/score>=7/);assert.match(edge,/p\.role!=="admin"/);assert.match(edge,/total_questions:30/);assert.match(edge,/attempts>=5/);assert.match(edge,/attempts_count\)>=5/);
 for(const t of ["profiles","question_bank","assessment_attempts","attempt_questions","attempt_answers","state_metrics"])assert.match(migration,new RegExp("create table if not exists public\\."+t));
 assert.match(migration,/enable row level security/);assert.match(migration,/auth\.uid\(\)/);assert.match(hardening,/service role manages question bank/);assert.match(hardening,/idx_assessment_attempts_user_created/);
 assert.equal(Object.keys(core.DISCIPLINES).length,17);assert.equal(core.resolveDiscipline("NEU0001","Categoria 15").code,"NAT");assert.equal(core.resolveDiscipline("PRO0001","Categoria 16").code,"FAP");assert.equal(core.resolveDiscipline("DD0017","Categoria 0").code,"DD");assert.throws(()=>core.resolveDiscipline("XYZ0001","Categoria desconhecida"),/não foi possível classificar/);

@@ -23,8 +23,8 @@
     PRA: "Prática de Direção",
     ENGT: "Engenharia de Tráfego",
     DID: "Didática",
-    NEU: "Neuroeducação Aplicada ao Trânsito",
-    PRO: "Formação e Atuação Profissional"
+    NAT: "Neuroeducação Aplicada ao Trânsito",
+    FAP: "Formação e Atuação Profissional"
   });
 
   function normalizeId(value, rowNumber) {
@@ -105,5 +105,5 @@
     return true;
   }
 
-  return Object.freeze({ MAX_FILE_BYTES, MAX_QUESTIONS, DISCIPLINES, normalizeId, normalizeCategory, resolveDiscipline, assertLimits, validateBatch });
+  return Object.freeze({ MAX_FILE_BYTES, MAX_QUESTIONS, DISCIPLINES, LEGACY_PREFIXES, normalizeId, normalizeCategory, resolveDiscipline, assertLimits, validateBatch });
 });

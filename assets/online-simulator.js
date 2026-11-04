@@ -45,7 +45,7 @@
     try {
       const value = JSON.parse(localStorage.getItem(QUESTIONS_KEY) || "[]");
       state.bank = Array.isArray(value)
-        ? value.filter(q => q && Number.isInteger(Number(q.id)) && typeof q.prompt === "string" && q.prompt.trim()).map(normalizeQuestion)
+        ? value.filter(q => q && q.id != null && String(q.id).trim() && typeof q.prompt === "string" && q.prompt.trim()).map(q => ({...normalizeQuestion(q),id:String(q.id).trim()}))
         : [];
     } catch (_) { state.bank = []; }
   }
@@ -80,7 +80,7 @@
     $("sim-remaining").textContent = String(Math.max(0, total - used));
     $("sim-round").textContent = state.session ? String(state.session.round || 0) : "—";
   }
-  function questionById(id) { return state.bank.find(q => Number(q.id) === Number(id)); }
+  function questionById(id) { return state.bank.find(q => String(q.id) === String(id)); }
   function normalized(value) {
     return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
   }
@@ -382,7 +382,7 @@
       setStatus("O simulado anterior ainda está em andamento. Use Próxima rodada para continuar ou Reiniciar ciclo para recomeçar.", true);
       return;
     }
-    state.session = { poolIds: shuffle(state.bank.map(q => Number(q.id))), cursor: 0, round: 0, currentIds: [], responses: {}, completed: [], roundSubmitted: false };
+    state.session = { poolIds: shuffle(state.bank.map(q => String(q.id))), cursor: 0, round: 0, currentIds: [], responses: {}, completed: [], roundSubmitted: false };
     saveSession();
     $("sim-start").classList.add("hidden");
     $("simulator-summary").classList.add("hidden");

@@ -37,7 +37,7 @@ assert.match(js, /function navigate\(/);
 assert.match(js, /function renderRecords\(/);
 assert.match(js, /function printAssessment\(/);
 assert.match(js, /function assessmentQuestions\(record\).*String\(q\.id\)/);
-assert.match(js, /String\\(item\\.id\\) === String\\(id\\)/);
+assert.match(js, /String\(item\.id\) === String\(id\)/);
 assert.match(js, /questionStorageKey/);
 assert.match(js, /saveDemoQuestions\(/);
 assert.match(css, /@media\(max-width:720px\)/);

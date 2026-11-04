@@ -6,7 +6,7 @@ for(const id of ["login-form","register-form","reg-name","reg-email","reg-state"
 for(const file of ["assets/portal.css","assets/portal.js","assets/supabase-config.js","assets/question-import-core.js"])assert.ok(html.includes(file));
 for(const v of ["overview","assessment","history"])assert.ok(html.includes('data-view="'+v+'"'));
 assert.match(js,/signUp\(/);assert.match(js,/signInWithPassword/);assert.match(js,/functions\.invoke/);assert.match(js,/function renderQuestion/);assert.match(js,/function csvQuestions/);assert.match(js,/function importCSV/);
-assert.doesNotMatch(js,/localStorage|answer_index|correct_index|service_role|secret key/i);
+assert.doesNotMatch(js,/localStorage|correct_index|service_role|secret key/i);assert.match(js,/answer_index:ans/);assert.match(js,/Selecione seu estado/);
 assert.match(js,/length!==30/);assert.match(js,/state-body/);assert.match(js,/minimumFractionDigits:1/);
 assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/\.result-banner/);
 assert.match(config,/sb_publishable_/);assert.doesNotMatch(config,/service_role|sb_secret_/i);

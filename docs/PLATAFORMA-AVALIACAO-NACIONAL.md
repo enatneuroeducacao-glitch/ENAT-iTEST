@@ -40,7 +40,7 @@ O primeiro visitante não recebe privilégios administrativos automaticamente.
 6. IDs originais são preservados; reenviar o arquivo não duplica os IDs.
 
 ## HSI-DOTH-P
-O banco contém o campo opcional hsi_dimension para classificar questões efetivamente vinculadas às dimensões Decision, Organization, Time, Humanization e Psychocomportamental. O CSV legado não possui essa classificação, portanto ela não é presumida pela disciplina. A nota ENAT permanece separada dos indicadores HSI; o instrumento HSI deve ter pontuação e interpretação próprias e não deve ser apresentado como diagnóstico psicológico.
+O portal contém uma seção independente de autoavaliação piloto Likert 1.0.0, com 25 afirmações (cinco por dimensão), cinco opções de resposta, recodificação de itens invertidos e cinco indicadores separados. Não há nota global. O resultado não é diagnóstico, laudo, medida validada de aptidão ou instrumento psicométrico validado. Consulte docs/HSI-DOTH-P-PILOTO.md para metodologia, limites, cálculo e plano de validação. A nota de conhecimento ENAT permanece totalmente separada.
 
 ## Homologação pendente
 - Criar e confirmar o primeiro usuário participante.

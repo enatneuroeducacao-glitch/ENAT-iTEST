@@ -26,6 +26,10 @@ jobs:
           test -f supabase/functions/enat-itest-api/index.ts
           test -f supabase/migrations/20261104180000_initial_national_assessment_platform.sql
           test -f docs/PLATAFORMA-AVALIACAO-NACIONAL.md
+          test -f docs/HSI-DOTH-P-PILOTO.md
+          test -f supabase/migrations/20261105112105_hsi_pilot_likert_instrument_v1.sql
+          test -f supabase/migrations/20261105112223_hsi_pilot_fix_dimension_score_aggregation.sql
+          test -f supabase/migrations/20261105112257_hsi_pilot_explicit_deny_policies_and_fk_index.sql
       - name: Check JavaScript syntax
         run: |
           node --check assets/portal.js

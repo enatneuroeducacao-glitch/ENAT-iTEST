@@ -10,6 +10,7 @@ Portal do Ensino Neuroeducacional Aplicado ao Trânsito para cadastro de partici
 - Nota de 0 a 10, aprovação a partir de 7,0 (21 acertos).
 - Feedback de acertos, erros, gabarito e explicações.
 - Histórico individual e importação administrativa CSV com preservação de IDs.
+- Seção HSI-DOTH-P piloto: 25 afirmações Likert, cinco dimensões e cinco indicadores separados da nota ENAT.
 
 ## Stack e ambiente
 - Frontend estático: HTML, CSS e JavaScript.
@@ -24,7 +25,7 @@ O gabarito não é enviado ao navegador. A correção ocorre na Edge Function au
 Após o primeiro cadastro, a conta administrativa autorizada deve ser promovida explicitamente no SQL Editor. Consulte docs/PLATAFORMA-AVALIACAO-NACIONAL.md. O CSV de 1.712 questões pode então ser importado no painel Administração ENAT; os lotes grandes são divididos automaticamente e os IDs originais são mantidos.
 
 ## HSI-DOTH-P
-A classificação HSI é opcional e não é inferida automaticamente pela disciplina. A nota de conhecimento ENAT e os indicadores HSI permanecem separados.
+O módulo piloto oferece 25 afirmações em escala Likert, cinco dimensões e cinco indicadores descritivos separados da nota ENAT. Não é instrumento psicométrico validado nem diagnóstico. Consulte docs/HSI-DOTH-P-PILOTO.md.
 
 ## Validação
 Execute node tests/smoke-test.js para testes estáticos básicos. A homologação de produção exige testes de cadastro, autenticação, sorteio, correção, histórico, importação e revisão dos advisors do Supabase.

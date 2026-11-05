@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102c46">
+  <meta name="description" content="ENAT iTEST — plataforma de avaliações educacionais, banco de questões e acompanhamento de aprendizagem.">
+  <title>ENAT iTEST | Avaliações educacionais</title>
+  <link rel="stylesheet" href="assets/styles.css?v=20261027-2">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+    <a class="brand" href="#" data-view="overview" aria-label="ENAT iTEST início">
+      <span class="brand-mark">iT</span><span><strong>ENAT <b>iTEST</b></strong><small>AVALIAÇÃO INTELIGENTE</small></span>
+    </a>
+    <div class="workspace-label">ESPAÇO DE TRABALHO</div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="overview"><span>▦</span>Visão geral</button>
+      <button class="nav-item" data-view="questions"><span>▤</span>Banco de questões <em id="question-nav-count">0</em></button>
+      <button class="nav-item" data-view="exams"><span>▣</span>Avaliações <em id="exam-nav-count">0</em></button>
+      <button class="nav-item" data-view="simulator"><span>◉</span>Simulado online</button>
+      <button class="nav-item" data-view="classes"><span>♧</span>Turmas e alunos</button>
+      <button class="nav-item" data-view="results"><span>⌁</span>Resultados</button>
+      <button class="nav-item" data-view="reports"><span>▥</span>Relatórios</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="pilot-note"><span class="status-dot"></span><div><strong>Plataforma em implantação</strong><small>Questões e avaliações ficam neste navegador; backend ainda pendente.</small></div></div>
+      <div class="profile"><span class="avatar">EN</span><span><strong>Administrador ENAT</strong><small>Perfil local sem autenticação</small></span><span class="more">•••</span></div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu" aria-expanded="false">☰</button>
+      <div class="breadcrumbs"><span>ENAT iTEST</span><span class="crumb-sep">/</span><strong id="breadcrumb-title">Visão geral</strong></div>
+      <div class="top-actions"><span class="demo-pill"><span></span> EM IMPLANTAÇÃO</span><button class="icon-button" id="help-button" aria-label="Informações sobre o sistema">?</button></div>
+    </header>
+    <div class="page-content">
+      <section class="welcome-row">
+        <div><div class="eyebrow">CENTRO DE AVALIAÇÕES ENAT</div><h1 id="page-title">Bom dia. Vamos aprender melhor.</h1><p id="page-subtitle">Acompanhe suas avaliações e organize o próximo passo do aprendizado.</p></div>
+        <button class="primary-button" id="new-exam"><span>＋</span> Criar avaliação</button>
+      </section>
+      <section class="notice" id="demo-notice"><span class="notice-icon">i</span><div><strong>Plataforma em implantação: dados reais ainda não sincronizam com um servidor.</strong><p>O banco de questões e as avaliações criadas ficam neste navegador. Autenticação, banco de dados compartilhado, turmas, resultados e relatórios ainda precisam ser implementados.</p></div><button id="dismiss-notice" aria-label="Fechar aviso">×</button></section>
+      <section class="metric-grid" aria-label="Indicadores do sistema">
+        <article class="metric-card"><div class="metric-top">Questões cadastradas <span class="metric-icon blue">▤</span></div><div class="metric-value" id="metric-questions">0</div><div class="metric-foot">Registros deste navegador</div></article>
+        <article class="metric-card"><div class="metric-top">Avaliações cadastradas <span class="metric-icon violet">▣</span></div><div class="metric-value" id="metric-exams">0</div><div class="metric-foot">Registros deste navegador</div></article>
+        <article class="metric-card"><div class="metric-top">Alunos cadastrados <span class="metric-icon teal">♧</span></div><div class="metric-value">—</div><div class="metric-foot">Módulo ainda não disponível</div></article>
+        <article class="metric-card"><div class="metric-top">Conclusão média <span class="metric-icon amber">⌁</span></div><div class="metric-value">—</div><div class="metric-foot">Sem tentativas registradas</div></article>
+      </section>
+      <section class="dashboard-grid">
+        <article class="panel">
+          <div class="panel-heading"><div><h2 id="list-title">Avaliações recentes</h2><p id="list-description">Organize, revise e prepare atividades de aprendizagem.</p></div><button class="text-button" id="view-all">Ver todas <span>→</span></button></div>
+          <div id="question-tools" class="question-tools hidden">
+            <label class="sr-only" for="question-search">Pesquisar questões</label><input id="question-search" type="search" placeholder="Pesquisar enunciado ou categoria…">
+            <label class="sr-only" for="question-filter">Filtrar por categoria</label><select id="question-filter"><option value="">Todas as disciplinas</option><option>Direção Defensiva</option><option>Legislação de Trânsito</option><option>Crimes de Trânsito</option><option>Infrações</option><option>Normas Gerais de Circulação e Conduta</option><option>Sinalização</option><option>Primeiros Socorros</option><option>Cidadania</option><option>Meio Ambiente</option><option>Mecânica Básica</option><option>Relacionamento Interpessoal</option><option>Psicologia de Trânsito</option><option>Prática de Direção</option><option>Engenharia de Tráfego</option><option>Didática</option><option>Neuroeducação Aplicada ao Trânsito</option><option>Formação e Atuação Profissional</option></select>
+            <button class="secondary-button" id="review-duplicates" type="button">Revisar duplicadas</button><button class="secondary-button" id="export-questions" type="button">Exportar CSV</button><button class="secondary-button" id="export-questions-pdf" type="button">Banco em PDF</button><button class="secondary-button" id="import-questions-button" type="button">Importar CSV</button><input id="import-questions-file" type="file" accept=".csv,text/csv" hidden><button class="primary-button" id="add-question" type="button">＋ Nova questão</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>AVALIAÇÃO</th><th>QUESTÕES</th><th>STATUS</th><th>ATUALIZAÇÃO</th><th></th></tr></thead><tbody id="records-body"></tbody></table></div>
+          <div class="empty-state hidden" id="empty-state"><div>▤</div><strong>Nenhum registro nesta visualização</strong><span>Crie uma avaliação demonstrativa para começar.</span></div>
+        </article>
+        <article class="panel quick-panel">
+          <div class="panel-heading"><div><h2>Acesso rápido</h2><p>Atalhos para tarefas comuns</p></div></div>
+          <button class="quick-action" data-action="question"><span class="quick-icon blue">＋</span><span><strong>Adicionar questão</strong><small>Monte uma nova questão</small></span><b>›</b></button>
+          <button class="quick-action" data-action="exam"><span class="quick-icon violet">▣</span><span><strong>Criar avaliação</strong><small>Defina uma nova prova</small></span><b>›</b></button>
+          <button class="quick-action" data-action="class"><span class="quick-icon teal">♧</span><span><strong>Organizar turma</strong><small>Gerencie grupos de alunos</small></span><b>›</b></button>
+          <button class="quick-action" id="open-correction"><span class="quick-icon amber">⌕</span><span><strong>Corrigir provas</strong><small>Digitalize uma folha de respostas</small></span><b>›</b></button><button class="quick-action" data-action="report"><span class="quick-icon amber">▥</span><span><strong>Ver resultados</strong><small>Consulte resultados registrados</small></span><b>›</b></button>
+          <div class="checklist"><div class="checklist-title"><span>✓</span> Preparação do ambiente</div><div class="check-row"><span class="check-pending">1</span><div><strong>Revisar banco de questões</strong><small>Importação CSV disponível no banco de questões</small></div></div><div class="check-row"><span class="check-pending">2</span><div><strong>Configurar perfis de acesso</strong><small>Autenticação real será implementada na etapa de backend</small></div></div><div class="check-row"><span class="check-pending">3</span><div><strong>Validar cópias de segurança</strong><small>Obrigatório antes de qualquer migração</small></div></div></div>
+        </article>
+      </section>
+      <section id="simulator-panel" class="simulator-panel hidden" aria-live="polite">
+        <div class="simulator-card">
+          <div class="simulator-heading"><div><div class="eyebrow">TREINO INDIVIDUAL</div><h2>Simulado online ENAT</h2><p>Questões do banco local em rodadas de até 30, sem repetir uma questão até concluir o ciclo completo.</p></div><span class="simulator-badge">30 por rodada</span></div>
+          <div class="simulator-stats"><div><small>Banco disponível</small><strong id="sim-total">0</strong></div><div><small>Respondidas no ciclo</small><strong id="sim-used">0</strong></div><div><small>Restantes</small><strong id="sim-remaining">0</strong></div><div><small>Rodada atual</small><strong id="sim-round">—</strong></div></div>
+          <div id="simulator-status" class="simulator-status" role="status">Carregando banco de questões…</div>
+          <div id="simulator-quiz" class="simulator-quiz hidden"></div>
+          <div id="simulator-summary" class="simulator-summary hidden"></div>
+          <div class="simulator-actions"><button class="secondary-button" id="sim-reset" type="button">Reiniciar ciclo</button><button class="primary-button" id="sim-start" type="button">Iniciar simulado</button><button class="primary-button hidden" id="sim-next" type="button">Próxima rodada</button></div>
+        </div>
+      </section>
+      <footer class="footer"><span>© 2026 ENAT iTEST · Plataforma em desenvolvimento</span><span>Sistema em implantação <span class="footer-dot">•</span> Dados locais não sincronizados</span></footer>
+    </div>
+  </main>
+</div>
+<dialog class="dialog" id="create-dialog" aria-labelledby="dialog-title">
+  <form id="create-form">
+    <div class="dialog-head"><h2 id="dialog-title">Criar avaliação</h2><button class="icon-button" type="button" id="close-dialog" aria-label="Fechar">×</button></div>
+    <p class="dialog-description" id="dialog-description">Crie uma avaliação. Ela ficará neste navegador até o backend ser conectado.</p>
+    <label for="exam-name">Nome da avaliação</label><input id="exam-name" name="exam-name" required maxlength="100" placeholder="Ex.: Fundamentos de segurança viária">
+    <fieldset class="subject-fieldset" aria-describedby="exam-subjects-help">
+      <legend>Matérias e categorias da prova</legend>
+      <p class="field-help">Marque uma ou mais categorias. Não é necessário usar Ctrl.</p>
+      <div id="exam-subjects" class="subject-checkboxes">
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Direção Defensiva" checked><span>Direção Defensiva</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Legislação de Trânsito"><span>Legislação de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Crimes de Trânsito"><span>Crimes de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Infrações"><span>Infrações</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Normas Gerais de Circulação e Conduta"><span>Normas Gerais de Circulação e Conduta</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Sinalização"><span>Sinalização</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Primeiros Socorros"><span>Primeiros Socorros</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Cidadania"><span>Cidadania</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Meio Ambiente"><span>Meio Ambiente</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Mecânica Básica"><span>Mecânica Básica</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Relacionamento Interpessoal"><span>Relacionamento Interpessoal</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Psicologia de Trânsito"><span>Psicologia de Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Prática de Direção"><span>Prática de Direção</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Engenharia de Tráfego"><span>Engenharia de Tráfego</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Didática"><span>Didática</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Neuroeducação Aplicada ao Trânsito"><span>Neuroeducação Aplicada ao Trânsito</span></label>
+        <label class="subject-option"><input type="checkbox" name="exam-subjects" value="Formação e Atuação Profissional"><span>Formação e Atuação Profissional</span></label>
+      </div>
+      <p class="field-help" id="exam-subjects-help">As questões serão sorteadas apenas entre as categorias marcadas, desde que estejam classificadas assim no banco.</p>
+    </fieldset>
+    <label for="exam-questions">Quantidade total de questões</label><input id="exam-questions" name="exam-questions" type="number" min="1" max="100" value="10" required>
+    <label for="exam-quantity">Quantidade de provas diferentes para gerar</label><input id="exam-quantity" name="exam-quantity" type="number" min="1" max="100" value="1" required><p class="field-help">O sistema criará essa quantidade de versões, cada uma com questões sorteadas e sem repetir a mesma combinação de outra prova cadastrada.</p>
+    <label for="exam-answer-mode">Cartão-resposta e correção</label><select id="exam-answer-mode" name="exam-answer-mode"><option value="system">Cartão-resposta para correção pelo sistema</option><option value="key">Cartão-resposta + gabarito pronto para correção manual</option><option value="both">Disponibilizar os dois formatos</option></select><p class="field-help">A correção automática de cartões preenchidos depende de um módulo de leitura/correção que ainda será implementado. Nesta versão, a opção configura os materiais para impressão.</p>
+    <div class="notice-inline" role="note"><strong>Montagem automática da prova</strong><p>O sistema sorteará questões do banco existente dentro das matérias selecionadas. Cada prova terá uma combinação inédita de questões em relação às provas já montadas neste navegador. A quantidade solicitada precisa estar disponível no banco.</p></div>
+    <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-dialog">Cancelar</button><button class="primary-button" type="submit">Sortear e montar prova</button></div>
+  </form>
+</dialog>
+<dialog class="dialog" id="question-dialog" aria-labelledby="question-dialog-title">
+  <form id="question-form">
+    <div class="dialog-head"><h2 id="question-dialog-title">Adicionar questão</h2><button class="icon-button" type="button" id="close-question-dialog" aria-label="Fechar">×</button></div>
+    <p class="dialog-description">Cadastre ou edite o enunciado, as alternativas e o gabarito. Nesta versão, as alterações ficam somente neste navegador.</p>
+    <label for="question-prompt">Enunciado</label><textarea id="question-prompt" name="question-prompt" required maxlength="1200" rows="3" placeholder="Digite o enunciado da questão"></textarea>
+    <label for="question-category">Disciplina</label><select id="question-category" name="question-category"><option>Direção Defensiva</option><option>Legislação de Trânsito</option><option>Crimes de Trânsito</option><option>Infrações</option><option>Normas Gerais de Circulação e Conduta</option><option>Sinalização</option><option>Primeiros Socorros</option><option>Cidadania</option><option>Meio Ambiente</option><option>Mecânica Básica</option><option>Relacionamento Interpessoal</option><option>Psicologia de Trânsito</option><option>Prática de Direção</option><option>Engenharia de Tráfego</option><option>Didática</option><option>Neuroeducação Aplicada ao Trânsito</option><option>Formação e Atuação Profissional</option></select>
+    <label for="question-type">Tipo de resposta</label>
+    <select id="question-type" name="question-type">
+      <option value="multiple_choice">Múltipla escolha</option>
+      <option value="true_false">Verdadeiro ou falso</option>
+      <option value="matching">Relação / associação</option>
+      <option value="short_text">Resposta curta</option>
+      <option value="essay">Resposta discursiva</option>
+    </select>
+    <div id="question-type-fields"></div>
+    <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-question-dialog">Cancelar</button><button class="primary-button" type="submit">Salvar questão</button></div>
+  </form>
+</dialog>
+<dialog class="dialog correction-dialog" id="correction-dialog" aria-labelledby="correction-title">
+  <div class="dialog-head"><h2 id="correction-title">Corrigir provas</h2><button class="icon-button" id="close-correction" type="button" aria-label="Fechar">×</button></div>
+  <p class="dialog-description">Envie uma foto frontal do cartão-resposta OMR (até 30 questões). O sistema lê o QR Code, reconhece as marcações e compara com o gabarito desta avaliação. Resultados ficam somente neste navegador.</p>
+  <div class="scan-controls"><label class="secondary-button" for="scan-file">Selecionar imagem</label><input id="scan-file" type="file" accept="image/png,image/jpeg,image/webp,image/bmp"><button class="secondary-button" id="scan-camera" type="button">Usar câmera do dispositivo</button><button class="secondary-button" id="scan-reset" type="button">Limpar</button></div>
+  <div id="camera-panel" class="camera-panel" hidden><video id="scan-video" autoplay playsinline muted></video><div class="camera-actions"><button class="primary-button" id="scan-capture" type="button">Capturar imagem</button><button class="secondary-button" id="scan-camera-stop" type="button">Desligar câmera</button></div></div><div id="scan-status" class="scan-status" role="status" aria-live="polite">Envie uma imagem para iniciar a identificação da folha.</div>
+  <div id="scan-preview" class="scan-preview"></div><div id="scan-result" class="scan-result"></div>
+  <div class="dialog-actions"><button class="primary-button" type="button" id="close-correction-bottom">Fechar</button></div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>\n<script src="assets/app.js?v=20261104-1" defer></script>
+<script src="assets/online-simulator.js?v=20261104-1" defer></script>\n<script src="assets/scan-correction.js?v=20261104-1" defer></script>
+  <script src="assets/question-import-core.js?v=20261104-2" defer></script>
+  <script src="assets/question-csv.js?v=20261104-1" defer></script>
+  <script src="assets/print-export.js?v=20261026-1" defer></script>
+</body>
+</html>

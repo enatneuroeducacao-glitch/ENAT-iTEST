@@ -23,17 +23,19 @@ jobs:
       - name: Validate static app files
         run: |
           test -f index.html
-          test -f assets/styles.css
-          test -f assets/app.js
-          test -f assets/online-simulator.js
-          node --check assets/app.js
-          node --check assets/online-simulator.js
-          node --check assets/scan-correction.js
+          test -f assets/portal.css
+          test -f assets/portal.js
+          test -f assets/supabase-config.js
+          test -f assets/question-import-core.js
+          test -f docs/HSI-DOTH-P-PILOTO.md
+          test -f supabase/migrations/20261105112105_hsi_pilot_likert_instrument_v1.sql
+          node --check assets/portal.js
+          node --check assets/supabase-config.js
+          node --check assets/question-import-core.js
           node --check tests/smoke-test.js
           node tests/smoke-test.js
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

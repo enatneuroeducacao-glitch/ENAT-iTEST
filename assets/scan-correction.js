@@ -85,7 +85,7 @@
       const assessments=readStore(ASSESSMENT_KEY), questions=readStore(QUESTION_KEY);
       const assessment=assessments.find(x=>Number(x.id)===Number(p.assessmentId));
       if(!assessment){const message="O QR foi lido, mas esta avaliação não está disponível no armazenamento deste navegador. A versão atual não tem banco central conectado.";say(message);$("scan-result").innerHTML='<div class="scan-warning">'+esc(message)+'</div>';return;}
-      const ids=p.questionIds.map(Number), linked=ids.map(id=>questions.find(q=>Number(q.id)===id));
+      const ids=p.questionIds.map(id=>String(id)), linked=ids.map(id=>questions.find(q=>String(q.id)===id));
       if(!ids.length||linked.some(q=>!q)){const message="Não foi possível recuperar todas as questões vinculadas ao QR Code. Verifique se a avaliação foi criada neste mesmo navegador e se o banco de questões continua disponível.";say(message);$("scan-result").innerHTML='<div class="scan-warning">'+esc(message)+'</div>';return;}
       if(ids.length>30){const message="Esta versão do cartão OMR suporta até 30 questões por folha. Gere um cartão com até 30 questões para corrigir automaticamente.";say(message);$("scan-result").innerHTML='<div class="scan-warning">'+esc(message)+'</div>';return;}
       if(decoded.qWidth<25){const message="O QR Code está pequeno demais para calibrar a leitura. Envie uma foto mais próxima e nítida da folha inteira.";say(message);$("scan-result").innerHTML='<div class="scan-warning">'+esc(message)+'</div>';return;}

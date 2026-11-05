@@ -27,6 +27,8 @@ jobs:
           test -f assets/portal.js
           test -f assets/supabase-config.js
           test -f assets/question-import-core.js
+          test -f docs/HSI-DOTH-P-PILOTO.md
+          test -f supabase/migrations/20261105112105_hsi_pilot_likert_instrument_v1.sql
           node --check assets/portal.js
           node --check assets/supabase-config.js
           node --check assets/question-import-core.js

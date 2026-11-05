@@ -2,7 +2,7 @@ name: Validate ENAT iTEST
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "feat/national-assessment-platform"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:

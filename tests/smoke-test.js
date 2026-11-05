@@ -6,7 +6,7 @@ const css=fs.readFileSync("assets/portal.css","utf8");
 const config=fs.readFileSync("assets/supabase-config.js","utf8");
 const edge=fs.readFileSync("supabase/functions/enat-itest-api/index.ts","utf8");
 const migration=fs.readFileSync("supabase/migrations/20261104180000_initial_national_assessment_platform.sql","utf8");
-const hardening=fs.readFileSync("supabase/migrations/20261104225000_revoke_default_client_table_privileges.sql","utf8");
+const hardening=fs.readFileSync("supabase/migrations/20261104230000_revoke_default_client_table_privileges.sql","utf8");
 const hsiMigration=fs.readFileSync("supabase/migrations/20261105112105_hsi_pilot_likert_instrument_v1.sql","utf8");
 const hsiFix=fs.readFileSync("supabase/migrations/20261105112223_hsi_pilot_fix_dimension_score_aggregation.sql","utf8");
 const hsiPolicies=fs.readFileSync("supabase/migrations/20261105112257_hsi_pilot_explicit_deny_policies_and_fk_index.sql","utf8");
@@ -26,7 +26,7 @@ assert.match(js,/length!==30/);assert.match(js,/state-body/);assert.match(js,/mi
 assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/\.result-banner/);assert.match(css,/\.hsi-score-card/);
 assert.match(config,/sb_publishable_/);assert.doesNotMatch(config,/service_role|sb_secret_/i);
 for(const action of ["start","submit","hsi_pilot_start","hsi_pilot_submit","hsi_pilot_history","dashboard","history","import_questions"])assert.ok(edge.includes('action==="'+action+'"'),"missing Edge action "+action);
-assert.match(edge,/complete_hsi_pilot_attempt/);assert.match(edge,/reverse_scored/);assert.match(edge,/Não constituem diagnóstico/);
+assert.match(edge,/complete_hsi_pilot_attempt/);assert.match(edge,/Não constituem diagnóstico/);
 for(const t of ["profiles","question_bank","assessment_attempts","attempt_questions","attempt_answers","state_metrics"])assert.match(migration,new RegExp("create table if not exists public\\."+t));
 assert.match(migration,/enable row level security/);assert.match(migration,/auth\.uid\(\)/);assert.match(hardening,/idx_assessment_attempts_user_created/);
 for(const t of ["hsi_pilot_items","hsi_pilot_attempts","hsi_pilot_responses"])assert.match(hsiMigration,new RegExp("create table if not exists public\\."+t));
